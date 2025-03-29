@@ -1,0 +1,175 @@
+/* src/styles.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f2f5;
+  direction: ltr;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.home-page,
+.tasks-page,
+.video-ads-page,
+.surfing-page,
+.referrals-page {
+  text-align: center;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.user-info {
+  text-align: left;
+}
+
+.username {
+  font-weight: bold;
+  display: block;
+}
+
+.uid {
+  color: #888;
+  font-size: 12px;
+}
+
+.icons .icon {
+  margin-left: 10px;
+  font-size: 20px;
+}
+
+.balance {
+  margin: 20px 0;
+}
+
+.balance-amount {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.coin-icon {
+  margin-right: 10px;
+  font-size: 30px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+}
+
+.action-btn {
+  padding: 10px 20px;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.level {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.validation-section {
+  margin: 20px 0;
+}
+
+.validation-section p {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.claim-section {
+  margin-top: 20px;
+}
+
+.ton-icon {
+  font-size: 50px;
+  margin: 20px 0;
+  background-color: #007aff;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
+  color: #fff;
+}
+
+.claim-btn {
+  background-color: #007aff;
+  color: #fff;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.tasks-page ul {
+  list-style: none;
+  padding: 0;
+}
+
+.tasks-page li {
+  background-color: #fff;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 10px;
+}
+
+.tabbar {
+  display: flex;
+  justify-content: space-around;
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+  padding: 10px 0;
+  position: sticky;
+  bottom: 0;
+}
+
+.tabbar-item {
+  cursor: pointer;
+  text-align: center;
+  flex: 1;
+}
+
+.tabbar-item.selected {
+  color: #007aff;
+  font-weight: bold;
+}
+
+.tabbar-item .icon {
+  display: block;
+  font-size: 20px;
+}
+
+.tabbar-item .text {
+  font-size: 12px;
+}
