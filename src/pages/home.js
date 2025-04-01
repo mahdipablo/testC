@@ -4,7 +4,9 @@ export function render() {
     const initDataUnsafe = window.Telegram.WebApp.initDataUnsafe || {};
     const first_name  = initDataUnsafe.user?.first_name  || "Unknown";
     const userId = initDataUnsafe.user?.id || "N/A";
-    console.log("test",initDataUnsafe)
+    console.log("initDataUnsafe",initDataUnsafe)
+    const initData = window.Telegram.WebApp.initData || {};
+    console.log("initData",initData)
     // HTML اولیه
     const html = `
       <div class="home-page">
@@ -61,12 +63,12 @@ export function render() {
       validateBtn.addEventListener("click", async () => {
         validationResult.textContent = "Validating...";
         try {
-          const response = await fetch("http://localhost/0/index.php/validate", {
+          const response = await fetch("https://coin-surf.sbs/3/server.php", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ initDataUnsafe }),
+            body: JSON.stringify({ initData  }),
           });
   
           const result = await response.json();
@@ -84,7 +86,7 @@ export function render() {
   async function fetchBalance() {
     const balanceElement = document.getElementById("balance");
     try {
-      const response = await fetch("http://localhost/0/index.php/getbalance", {
+      const response = await fetch("http://coin-surf.sbs/index.php/getbalance", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
