@@ -147,7 +147,7 @@ export function render() {
         }
     }
 
-    // تنظیم listener برای دکمه Validate بعد از رندر
+    // تنظیم listener برای دکمه Validate
     function setupEventListeners() {
         const validateBtn = document.getElementById("validate-btn");
         if (validateBtn) {
@@ -161,13 +161,10 @@ export function render() {
         }
     }
 
-    // رندر HTML و اجرای تابع‌ها
-    const container = document.createElement('div');
-    container.innerHTML = html;
-    document.body.innerHTML = ''; // پاک کردن محتوای قبلی
-    document.body.appendChild(container);
+    // رندر HTML
+    document.body.innerHTML = html; // جایگزینی محتوای فعلی با HTML جدید
 
-    // فراخوانی تابع‌ها بلافاصله بعد از رندر
+    // اجرای تابع‌ها بلافاصله بعد از رندر
     fetchBalance();
     validateData();
     setupEventListeners();
