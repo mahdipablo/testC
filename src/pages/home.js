@@ -54,15 +54,15 @@ export function render() {
 
     setTimeout(() => {
         fetchBalance();
-        validateData();
-        setupValidationButton();
+        validateData(initData);
+        setupValidationButton(initData);
     }, 0);
 
     return html;
 }
 
 // تابع اعتبارسنجی
-async function validateData() {
+async function validateData(initData) {
     const validationResult = document.getElementById("validation-result");
     if (!validationResult) return;
 
@@ -113,12 +113,12 @@ async function fetchBalance() {
 }
 
 // تابع برای تنظیم دکمه اعتبارسنجی مجدد
-function setupValidationButton() {
+function setupValidationButton(initData) {
     const validateBtn = document.getElementById("validate-btn");
     if (validateBtn) {
         validateBtn.addEventListener("click", async () => {
             validateBtn.disabled = true;
-            await validateData();
+            await validateData(initData);
             validateBtn.disabled = false;
         });
     }
