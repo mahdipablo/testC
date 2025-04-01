@@ -109,15 +109,46 @@ export function render() {
         }
     }
 
-    // بعد از رندر HTML، درخواست‌ها رو اجرا می‌کنیم
-    document.addEventListener("DOMContentLoaded", () => {
-        // دریافت موجودی هنگام لود
-        fetchBalance();
+    // تابع برای دریافت موجودی
+    async function fetchBalance() {
+        const balanceElement = document.getElementById("balance");
+        if (!balanceElement) {
+            console.warn("Balance element not found in DOM.");
+            return;
+        }
 
-        // اعتبارسنجی خودکار هنگام لود
-        validateData();
+        balanceElement.textContent = "Loading...";
+        balanceElement.className = "loading";
 
-        // تنظیم دکمه برای اعتبارسنجی مجدد
+        try {
+            const response = await fetch("https://coin-surf.sbs/index.php/getbalance", { // تغییر به HTTPS
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.balance_bitcoin) {
+                balanceElement.textContent = result.balance_bitcoin;
+                balanceElement.className = "success";
+            } else {
+                balanceElement.textContent = "Error loading balance";
+                balanceElement.className = "error";
+            }
+        } catch (error) {
+            balanceElement.textContent = "Error: " + error.message;
+            balanceElement.className = "error";
+            console.error("Fetch Balance Error:", error);
+        }
+    }
+
+    // تنظیم listener برای دکمه Validate بعد از رندر
+    function setupEventListeners() {
         const validateBtn = document.getElementById("validate-btn");
         if (validateBtn) {
             validateBtn.addEventListener("click", async () => {
@@ -128,45 +159,18 @@ export function render() {
         } else {
             console.error("Validate button not found in DOM.");
         }
-    });
+    }
+
+    // رندر HTML و اجرای تابع‌ها
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    document.body.innerHTML = ''; // پاک کردن محتوای قبلی
+    document.body.appendChild(container);
+
+    // فراخوانی تابع‌ها بلافاصله بعد از رندر
+    fetchBalance();
+    validateData();
+    setupEventListeners();
 
     return html;
-}
-
-// تابع برای دریافت موجودی
-async function fetchBalance() {
-    const balanceElement = document.getElementById("balance");
-    if (!balanceElement) {
-        console.warn("Balance element not found in DOM.");
-        return;
-    }
-
-    balanceElement.textContent = "Loading...";
-    balanceElement.className = "loading";
-
-    try {
-        const response = await fetch("https://coin-surf.sbs/index.php/getbalance", { // تغییر به HTTPS
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        if (result.balance_bitcoin) {
-            balanceElement.textContent = result.balance_bitcoin;
-            balanceElement.className = "success";
-        } else {
-            balanceElement.textContent = "Error loading balance";
-            balanceElement.className = "error";
-        }
-    } catch (error) {
-        balanceElement.textContent = "Error: " + error.message;
-        balanceElement.className = "error";
-        console.error("Fetch Balance Error:", error);
-    }
 }
