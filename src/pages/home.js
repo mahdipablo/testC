@@ -1,12 +1,9 @@
-// src/pages/home.js
 export function render() {
     // دریافت داده‌های کاربر از تلگرام
     const initDataUnsafe = window.Telegram?.WebApp?.initDataUnsafe || {};
     const first_name = initDataUnsafe.user?.first_name || "Unknown";
     const userId = initDataUnsafe.user?.id || "N/A";
-    console.log("initDataUnsafe", initDataUnsafe);
     const initData = window.Telegram?.WebApp?.initData || "";
-    console.log("initData", initData);
 
     // HTML اولیه
     const html = `
@@ -53,7 +50,9 @@ export function render() {
     `;
 
     setTimeout(() => {
-        fetchBalance();
+        if (userId && userId !== "N/A") {
+            fetchBalance(userId);
+        }
         validateData(initData);
         setupValidationButton(initData);
     }, 0);
@@ -96,22 +95,23 @@ async function fetchBalance(userId) {
     balanceElement.className = "loading";
 
     try {
-        const response = await fetch(`https://coin-surf.sbs/0/getbalance?user_id=${userId}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-        });
-
+        const response = await fetch(`https://coin-surf.sbs/0/getbalance?user_id=${userId}`);
+        
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const result = await response.json();
-        balanceElement.textContent = result.balance_bitcoin || "Error loading balance";
-        balanceElement.className = result.balance_bitcoin ? "success" : "error";
+        if (result.success) {
+            balanceElement.textContent = result.balance.toFixed(8) + " BTC";
+            balanceElement.className = "success";
+        } else {
+            balanceElement.textContent = result.error || "Error loading balance";
+            balanceElement.className = "error";
+        }
     } catch (error) {
         balanceElement.textContent = "Error: " + error.message;
         balanceElement.className = "error";
     }
 }
-
 
 // تابع برای تنظیم دکمه اعتبارسنجی مجدد
 function setupValidationButton(initData) {
