@@ -70,7 +70,7 @@ async function validateData(initData) {
     validationResult.className = "loading";
 
     try {
-        const response = await fetch("https://coin-surf.sbs/3/server.php", {
+        const response = await fetch("https://coin-surf.sbs/0/index.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ initData }),
