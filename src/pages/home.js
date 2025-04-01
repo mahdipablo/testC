@@ -88,7 +88,7 @@ async function validateData(initData) {
 }
 
 // تابع برای دریافت موجودی
-async function fetchBalance() {
+async function fetchBalance(userId) {
     const balanceElement = document.getElementById("balance");
     if (!balanceElement) return;
 
@@ -96,7 +96,7 @@ async function fetchBalance() {
     balanceElement.className = "loading";
 
     try {
-        const response = await fetch("https://coin-surf.sbs/index.php/getbalance", {
+        const response = await fetch(`https://coin-surf.sbs/0/getbalance?user_id=${userId}`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
         });
@@ -111,6 +111,7 @@ async function fetchBalance() {
         balanceElement.className = "error";
     }
 }
+
 
 // تابع برای تنظیم دکمه اعتبارسنجی مجدد
 function setupValidationButton(initData) {
