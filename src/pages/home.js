@@ -47,8 +47,33 @@ export function render() {
           <button class="claim-btn">Claim</button>
         </div>
       </div>
+
+      <style>
+        .success {
+            color: #28a745;
+            background-color: #e9fce9;
+            border: 2px solid #28a745;
+            padding: 5px;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #fce9e9;
+            border: 2px solid #dc3545;
+            padding: 5px;
+        }
+        .loading {
+            background-color: #17a2b8;
+            color: white;
+            border: 2px solid #17a2b8;
+            padding: 5px;
+        }
+      </style>
     `;
 
+    // رندر HTML
+    document.body.innerHTML = html;
+
+    // اجرای تابع‌ها بعد از رندر
     setTimeout(() => {
         if (userId && userId !== "N/A") {
             fetchBalance(userId);
@@ -94,14 +119,17 @@ async function fetchBalance(userId) {
     balanceElement.textContent = "Loading...";
     balanceElement.className = "loading";
 
-     try {
-       const response = await fetch(`https://coin-surf.sbs/0/index.php?user_id=${userId}`);
-        
+    try {
+        const response = await fetch(`https://coin-surf.sbs/0/getbalance?user_id=${userId}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const result = await response.json();
         if (result.success) {
-            balanceElement.textContent = result.balance.toFixed(8) + " BTC";
+            balanceElement.textContent = (result.balance || 0).toFixed(8) + " BTC";
             balanceElement.className = "success";
         } else {
             balanceElement.textContent = result.error || "Error loading balance";
@@ -113,7 +141,6 @@ async function fetchBalance(userId) {
     }
 }
 
-    
 // تابع برای تنظیم دکمه اعتبارسنجی مجدد
 function setupValidationButton(initData) {
     const validateBtn = document.getElementById("validate-btn");
