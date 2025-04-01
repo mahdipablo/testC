@@ -94,24 +94,17 @@ async function fetchBalance(userId) {
     balanceElement.textContent = "Loading...";
     balanceElement.className = "loading";
 
-    try {
+     try {
         const response = await fetch(`https://coin-surf.sbs/0/index.php?user_id=${userId}`);
-        
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const result = await response.json();
-        if (result.success) {
-            balanceElement.textContent = result.balance.toFixed(8) + " BTC";
-            balanceElement.className = "success";
-        } else {
-            balanceElement.textContent = result.error || "Error loading balance";
-            balanceElement.className = "error";
-        }
-    } catch (error) {
-        balanceElement.textContent = "Error: " + error.message;
-        balanceElement.className = "error";
-    }
-}
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                initData: initData
+            })
+        });
 
 // تابع برای تنظیم دکمه اعتبارسنجی مجدد
 function setupValidationButton(initData) {
