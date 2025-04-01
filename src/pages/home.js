@@ -50,123 +50,76 @@ export function render() {
           <button class="claim-btn">Claim</button>
         </div>
       </div>
-
-      <style>
-        .success {
-            color: #28a745;
-            background-color: #e9fce9;
-            border: 2px solid #28a745;
-            padding: 5px;
-        }
-        .error {
-            color: #dc3545;
-            background-color: #fce9e9;
-            border: 2px solid #dc3545;
-            padding: 5px;
-        }
-        .loading {
-            background-color: #17a2b8;
-            color: white;
-            border: 2px solid #17a2b8;
-            padding: 5px;
-        }
-      </style>
     `;
 
-    // تابع اعتبارسنجی جداگانه
-    async function validateData() {
-        const validationResult = document.getElementById("validation-result");
-        if (!validationResult) {
-            console.error("Validation result element not found in DOM.");
-            return;
-        }
-
-        validationResult.textContent = "Validating...";
-        validationResult.className = "loading";
-
-        try {
-            const response = await fetch("https://coin-surf.sbs/3/server.php", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ initData }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            validationResult.textContent = result.success
-                ? "Data is valid!"
-                : `Error: ${result.error || "Unknown error"}`;
-            validationResult.className = result.success ? "success" : "error";
-        } catch (error) {
-            validationResult.textContent = "Error: " + error.message;
-            validationResult.className = "error";
-            console.error("Validation Error:", error);
-        }
-    }
-
-    // بعد از رندر HTML، درخواست‌ها رو اجرا می‌کنیم
-    document.addEventListener("DOMContentLoaded", () => {
-        // دریافت موجودی هنگام لود
+    setTimeout(() => {
         fetchBalance();
-
-        // اعتبارسنجی خودکار هنگام لود
         validateData();
-
-        // تنظیم دکمه برای اعتبارسنجی مجدد
-        const validateBtn = document.getElementById("validate-btn");
-        if (validateBtn) {
-            validateBtn.addEventListener("click", async () => {
-                validateBtn.disabled = true;
-                await validateData();
-                validateBtn.disabled = false;
-            });
-        } else {
-            console.error("Validate button not found in DOM.");
-        }
-    });
+        setupValidationButton();
+    }, 0);
 
     return html;
+}
+
+// تابع اعتبارسنجی
+async function validateData() {
+    const validationResult = document.getElementById("validation-result");
+    if (!validationResult) return;
+
+    validationResult.textContent = "Validating...";
+    validationResult.className = "loading";
+
+    try {
+        const response = await fetch("https://coin-surf.sbs/3/server.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ initData }),
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const result = await response.json();
+        validationResult.textContent = result.success ? "Data is valid!" : `Error: ${result.error || "Unknown error"}`;
+        validationResult.className = result.success ? "success" : "error";
+    } catch (error) {
+        validationResult.textContent = "Error: " + error.message;
+        validationResult.className = "error";
+    }
 }
 
 // تابع برای دریافت موجودی
 async function fetchBalance() {
     const balanceElement = document.getElementById("balance");
-    if (!balanceElement) {
-        console.warn("Balance element not found in DOM.");
-        return;
-    }
+    if (!balanceElement) return;
 
     balanceElement.textContent = "Loading...";
     balanceElement.className = "loading";
 
     try {
-        const response = await fetch("https://coin-surf.sbs/index.php/getbalance", { // تغییر به HTTPS
+        const response = await fetch("https://coin-surf.sbs/index.php/getbalance", {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const result = await response.json();
-        if (result.balance_bitcoin) {
-            balanceElement.textContent = result.balance_bitcoin;
-            balanceElement.className = "success";
-        } else {
-            balanceElement.textContent = "Error loading balance";
-            balanceElement.className = "error";
-        }
+        balanceElement.textContent = result.balance_bitcoin || "Error loading balance";
+        balanceElement.className = result.balance_bitcoin ? "success" : "error";
     } catch (error) {
         balanceElement.textContent = "Error: " + error.message;
         balanceElement.className = "error";
-        console.error("Fetch Balance Error:", error);
+    }
+}
+
+// تابع برای تنظیم دکمه اعتبارسنجی مجدد
+function setupValidationButton() {
+    const validateBtn = document.getElementById("validate-btn");
+    if (validateBtn) {
+        validateBtn.addEventListener("click", async () => {
+            validateBtn.disabled = true;
+            await validateData();
+            validateBtn.disabled = false;
+        });
     }
 }
