@@ -1,11 +1,11 @@
 export function render() {
-    // دریافت داده‌های کاربر از تلگرام
+    // دریافت داده‌های کاربر از تلگرام (قسمت قبلی بدون تغییر)
     const initDataUnsafe = window.Telegram?.WebApp?.initDataUnsafe || {};
     const first_name = initDataUnsafe.user?.first_name || "Unknown";
     const userId = initDataUnsafe.user?.id || "N/A";
     const initData = window.Telegram?.WebApp?.initData || "";
 
-    // HTML اولیه
+    // HTML اولیه (قسمت قبلی بدون تغییر)
     const html = `
       <div class="home-page">
         <div class="header">
@@ -60,7 +60,7 @@ export function render() {
     return html;
 }
 
-// تابع اعتبارسنجی
+// تابع اعتبارسنجی (بدون تغییر)
 async function validateData(initData) {
     const validationResult = document.getElementById("validation-result");
     if (!validationResult) return;
@@ -86,12 +86,7 @@ async function validateData(initData) {
     }
 }
 
-
-// تابع برای دریافت موجودی بر اساس telegram_id
-
-
-
-// تابع برای دریافت موجودی بر اساس telegram_id
+// تابع برای دریافت موجودی بر اساس telegram_id (اصلاح‌شده)
 async function fetchBalance(telegramId) {
     const balanceElement = document.getElementById("balance");
     if (!balanceElement) return;
@@ -102,7 +97,7 @@ async function fetchBalance(telegramId) {
 
     try {
         // ارسال درخواست به balance.php با telegram_id
-        const response = await fetch(`https://coin-surf.sbs/balance.php?id=${userId}`);
+        const response = await fetch(`https://coin-surf.sbs/0/balance.php?id=${telegramId}`);
         
         // بررسی وضعیت پاسخ
         if (!response.ok) {
@@ -113,14 +108,15 @@ async function fetchBalance(telegramId) {
         
         // پردازش پاسخ موفق
         if (result.success) {
-            balanceElement.textContent = `${result.balance.toFixed(8)} BTC`;
+            balanceElement.textContent = `${result.balance} TON`; // نمایش balance با واحد TON
             balanceElement.className = "success";
             
             // اطلاعات اضافی برای دیباگ (اختیاری)
             console.log('Balance details:', {
                 telegram_id: result.telegram_id,
                 user_id: result.user_id,
-                last_updated: result.last_updated
+                last_updated: result.last_updated,
+                balance: result.balance
             });
         } 
         // پردازش خطا
@@ -131,7 +127,7 @@ async function fetchBalance(telegramId) {
             // پیشنهاد ایجاد حساب جدید اگر کاربر یافت نشد
             if (result.error === "User not found in financial records") {
                 console.warn("User financial record not found, consider creating one");
-                // میتوانید اینجا تابع ایجاد حساب جدید را فراخوانی کنید
+                // می‌توانید اینجا تابع ایجاد حساب جدید را فراخوانی کنید
             }
         }
     } catch (error) {
@@ -147,10 +143,7 @@ async function fetchBalance(telegramId) {
     }
 }
 
-
-
-
-// تابع برای تنظیم دکمه اعتبارسنجی مجدد
+// تابع برای تنظیم دکمه اعتبارسنجی مجدد (بدون تغییر)
 function setupValidationButton(initData) {
     const validateBtn = document.getElementById("validate-btn");
     if (validateBtn) {
