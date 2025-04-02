@@ -1,11 +1,9 @@
 export function render() {
     // دریافت داده‌های کاربر از تلگرام
-    const tgWebApp = window.Telegram?.WebApp;
-    const initDataUnsafe = tgWebApp?.initDataUnsafe || {};
-    const user = initDataUnsafe.user || {};
-    const first_name = user.first_name || "Unknown";
-    const userId = user.id || "N/A";
-    const initData = tgWebApp?.initData || "";
+    const initDataUnsafe = window.Telegram?.WebApp?.initDataUnsafe || {};
+    const first_name = initDataUnsafe.user?.first_name || "Unknown";
+    const userId = initDataUnsafe.user?.id || "N/A";
+    const initData = window.Telegram?.WebApp?.initData || "";
 
     // HTML اولیه
     const html = `
@@ -53,7 +51,7 @@ export function render() {
 
     setTimeout(() => {
         if (userId && userId !== "N/A") {
-            fetchBalance(userId, initData);
+            fetchBalance(userId);
         }
         validateData(initData);
         setupValidationButton(initData);
@@ -62,7 +60,7 @@ export function render() {
     return html;
 }
 
-// تابع اعتبارسنجی داده‌های تلگرام
+// تابع اعتبارسنجی
 async function validateData(initData) {
     const validationResult = document.getElementById("validation-result");
     if (!validationResult) return;
@@ -74,26 +72,22 @@ async function validateData(initData) {
         const response = await fetch("https://coin-surf.sbs/0/index.php", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                action: "validate",
-                initData: initData 
-            }),
+            body: JSON.stringify({ initData }),
         });
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const result = await response.json();
-        validationResult.textContent = result.success ? "✅ Data is valid!" : `❌ Error: ${result.error || "Unknown error"}`;
+        validationResult.textContent = result.success ? "Data is valid!" : `Error: ${result.error || "Unknown error"}`;
         validationResult.className = result.success ? "success" : "error";
     } catch (error) {
-        validationResult.textContent = "❌ Connection error";
+        validationResult.textContent = "Error: " + error.message;
         validationResult.className = "error";
-        console.error("Validation error:", error);
     }
 }
 
-// تابع برای دریافت موجودی کاربر
-async function fetchBalance(userId, initData) {
+// تابع برای دریافت موجودی
+async function fetchBalance(userId) {
     const balanceElement = document.getElementById("balance");
     if (!balanceElement) return;
 
@@ -101,31 +95,21 @@ async function fetchBalance(userId, initData) {
     balanceElement.className = "loading";
 
     try {
-        const response = await fetch("https://coin-surf.sbs/0/index.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                action: "getbalance",
-                user_id: userId,
-                initData: initData
-            }),
-        });
-
+        const response = await fetch(`https://coin-surf.sbs/0/getbalance?user_id=${userId}`);
+        
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const result = await response.json();
-        
         if (result.success) {
-            balanceElement.textContent = `${parseFloat(result.balance).toFixed(8)} BTC`;
+            balanceElement.textContent = result.balance.toFixed(8) + " BTC";
             balanceElement.className = "success";
         } else {
             balanceElement.textContent = result.error || "Error loading balance";
             balanceElement.className = "error";
         }
     } catch (error) {
-        balanceElement.textContent = "Connection error";
+        balanceElement.textContent = "Error: " + error.message;
         balanceElement.className = "error";
-        console.error("Fetch balance error:", error);
     }
 }
 
@@ -135,10 +119,8 @@ function setupValidationButton(initData) {
     if (validateBtn) {
         validateBtn.addEventListener("click", async () => {
             validateBtn.disabled = true;
-            validateBtn.textContent = "Validating...";
             await validateData(initData);
             validateBtn.disabled = false;
-            validateBtn.textContent = "Validate Again";
         });
     }
 }
