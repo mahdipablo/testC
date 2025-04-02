@@ -120,7 +120,7 @@ async function fetchBalance(userId) {
     balanceElement.className = "loading";
 
     try {
-        const response = await fetch(`https://coin-surf.sbs/0/getbalance?user_id=${userId}`, {
+        const response = await fetch(`https://coin-surf.sbs/0/index.php?user_id=${userId}`, {
             method: "GET",
             headers: { "Content-Type": "application/json" },
         });
