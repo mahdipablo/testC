@@ -88,60 +88,53 @@ async function validateData(initData) {
 
 
 // تابع برای دریافت موجودی بر اساس telegram_id
+
+
 async function fetchBalance(telegramId) {
     const balanceElement = document.getElementById("balance");
     if (!balanceElement) return;
 
-    // نمایش وضعیت در حال بارگذاری
     balanceElement.textContent = "Loading...";
     balanceElement.className = "loading";
 
     try {
-        // ارسال درخواست به balance.php با telegram_id
-        const response = await fetch(`https://coin-surf.sbs/balance.php?id=${telegramId}`);
+        // اضافه کردن timestamp برای جلوگیری از کش
+        const url = `https://coin-surf.sbs/balance.php?id=${telegramId}&_=${Date.now()}`;
         
-        // بررسی وضعیت پاسخ
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+            }
+        });
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const result = await response.json();
         
-        // پردازش پاسخ موفق
         if (result.success) {
-            balanceElement.textContent = `${result.balance.toFixed(8)} BTC`;
+            balanceElement.textContent = `${parseFloat(result.balance).toFixed(8)} BTC`;
             balanceElement.className = "success";
-            
-            // اطلاعات اضافی برای دیباگ (اختیاری)
-            console.log('Balance details:', {
-                telegram_id: result.telegram_id,
-                user_id: result.user_id,
-                last_updated: result.last_updated
-            });
-        } 
-        // پردازش خطا
-        else {
+        } else {
             balanceElement.textContent = result.error || "Error loading balance";
             balanceElement.className = "error";
-            
-            // پیشنهاد ایجاد حساب جدید اگر کاربر یافت نشد
-            if (result.error === "User not found in financial records") {
-                console.warn("User financial record not found, consider creating one");
-                // میتوانید اینجا تابع ایجاد حساب جدید را فراخوانی کنید
-            }
         }
     } catch (error) {
-        // مدیریت خطاهای شبکه/سیستم
-        balanceElement.textContent = "Connection error: " + error.message;
+        balanceElement.textContent = "Failed to load balance. Please try again.";
         balanceElement.className = "error";
-        console.error("Fetch balance failed:", error);
-        
-        // نمایش اطلاعات بیشتر برای دیباگ
-        if (error.response) {
-            console.error("Response details:", await error.response.json());
-        }
+        console.error("Fetch error:", error);
     }
 }
+
+
+
+
+
+
 
 // تابع برای تنظیم دکمه اعتبارسنجی مجدد
 function setupValidationButton(initData) {
