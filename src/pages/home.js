@@ -1,11 +1,9 @@
 export function render() {
-    // دریافت داده‌های کاربر از تلگرام (قسمت قبلی بدون تغییر)
     const initDataUnsafe = window.Telegram?.WebApp?.initDataUnsafe || {};
     const first_name = initDataUnsafe.user?.first_name || "Unknown";
     const userId = initDataUnsafe.user?.id || "N/A";
     const initData = window.Telegram?.WebApp?.initData || "";
 
-    // HTML اولیه (قسمت قبلی بدون تغییر)
     const html = `
       <div class="home-page">
         <div class="header">
@@ -44,7 +42,8 @@ export function render() {
           <h2>Home</h2>
           <p>Claim TON tokens and level up your account to earn even more.</p>
           <div class="ton-icon">💎</div>
-          <button class="claim-btn">Claim</button>
+          <button id="claim-btn" class="claim-btn">Claim</button>
+          <p id="claim-result"></p>
         </div>
       </div>
     `;
@@ -55,9 +54,66 @@ export function render() {
         }
         validateData(initData);
         setupValidationButton(initData);
+        setupClaimButton(userId);
     }, 0);
 
     return html;
+}
+
+// تابع جدید برای افزایش موجودی
+async function increaseBalance(telegramId) {
+    const claimResult = document.getElementById("claim-result");
+    const claimBtn = document.getElementById("claim-btn");
+    
+    if (!claimResult || !claimBtn) return;
+
+    claimResult.textContent = "Processing...";
+    claimResult.className = "loading";
+    claimBtn.disabled = true;
+
+    try {
+        const response = await fetch(`https://coin-surf.sbs/0/balance.php?id=${telegramId}&action=increase_balance`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            claimResult.textContent = `Success! Your balance increased by 1 TON. New balance: ${data.new_balance} TON`;
+            claimResult.className = "success";
+            
+            // به روزرسانی نمایش موجودی
+            const balanceElement = document.getElementById("balance");
+            if (balanceElement) {
+                balanceElement.textContent = `${data.new_balance} TON`;
+                balanceElement.className = "success";
+            }
+            
+            // غیرفعال کردن دکمه claim برای مدت کوتاه
+            setTimeout(() => {
+                claimBtn.disabled = false;
+            }, 3000); // 3 ثانیه تاخیر قبل از فعال شدن مجدد دکمه
+        } else {
+            claimResult.textContent = `Error: ${data.error || "Failed to increase balance"}`;
+            claimResult.className = "error";
+            claimBtn.disabled = false;
+        }
+    } catch (error) {
+        claimResult.textContent = `Network error: ${error.message}`;
+        claimResult.className = "error";
+        claimBtn.disabled = false;
+    }
+}
+
+// تابع جدید برای تنظیم دکمه Claim
+function setupClaimButton(telegramId) {
+    const claimBtn = document.getElementById("claim-btn");
+    if (claimBtn && telegramId && telegramId !== "N/A") {
+        claimBtn.addEventListener("click", () => {
+            increaseBalance(telegramId);
+        });
+    }
 }
 
 // تابع اعتبارسنجی (بدون تغییر)
@@ -86,57 +142,46 @@ async function validateData(initData) {
     }
 }
 
-// تابع برای دریافت موجودی بر اساس telegram_id (اصلاح‌شده)
+// تابع برای دریافت موجودی (بدون تغییر)
 async function fetchBalance(telegramId) {
     const balanceElement = document.getElementById("balance");
     if (!balanceElement) return;
 
-    // نمایش وضعیت در حال بارگذاری
     balanceElement.textContent = "Loading...";
     balanceElement.className = "loading";
 
     try {
-        // ارسال درخواست به balance.php با telegram_id
         const response = await fetch(`https://coin-surf.sbs/0/balance.php?id=${telegramId}`);
         
-        // بررسی وضعیت پاسخ
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const result = await response.json();
         
-        // پردازش پاسخ موفق
         if (result.success) {
-            balanceElement.textContent = `${result.balance} TON`; // نمایش balance با واحد TON
+            balanceElement.textContent = `${result.balance} TON`;
             balanceElement.className = "success";
             
-            // اطلاعات اضافی برای دیباگ (اختیاری)
             console.log('Balance details:', {
                 telegram_id: result.telegram_id,
                 user_id: result.user_id,
                 last_updated: result.last_updated,
                 balance: result.balance
             });
-        } 
-        // پردازش خطا
-        else {
+        } else {
             balanceElement.textContent = result.error || "Error loading balance";
             balanceElement.className = "error";
             
-            // پیشنهاد ایجاد حساب جدید اگر کاربر یافت نشد
             if (result.error === "User not found in financial records") {
                 console.warn("User financial record not found, consider creating one");
-                // می‌توانید اینجا تابع ایجاد حساب جدید را فراخوانی کنید
             }
         }
     } catch (error) {
-        // مدیریت خطاهای شبکه/سیستم
         balanceElement.textContent = "Connection error: " + error.message;
         balanceElement.className = "error";
         console.error("Fetch balance failed:", error);
         
-        // نمایش اطلاعات بیشتر برای دیباگ
         if (error.response) {
             console.error("Response details:", await error.response.json());
         }
