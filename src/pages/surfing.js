@@ -10,9 +10,11 @@ export function render() {
                 const ads = data.ads;
                 if (ads.length > 0) {
                     content = ads.map(ad => `
-                        <li>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens) 
-                            <a href="${ad.url}" target="_blank" class="claim-link">Claim</a>
-                        </li>
+                        <ul>
+                            <li>Ad# ${ad.id}: views ${ad.views} (+${ad.views} tokens) 
+                                <button onclick="window.open('${ad.url}', '_blank')" class="claim-btn">Visit</button>
+                            </li>
+                        </ul>
                     `).join("");
                 } else {
                     content = "<p>No ads available.</p>";
@@ -33,7 +35,7 @@ export function render() {
       <div class="surfing-page">
         <h2>Surfing</h2>
         <p>Surf websites to earn tokens.</p>
-        <ul id="ads-container">${content}</ul>
+        <div id="ads-container">${content}</div>
       </div>
     `;
 }
