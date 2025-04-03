@@ -1,4 +1,3 @@
-// surfing.js
 export function render() {
     let content = "<p>Loading ads...</p>";
 
@@ -42,7 +41,14 @@ export function render() {
 }
 
 function openInMiniApp(adId, url, views) {
-    const telegram_id = window.Telegram?.WebApp.initDataUnsafe?.user?.id || 123456789;
+    // دریافت Telegram ID از Mini App
+    const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
+    
+    if (!telegram_id) {
+        alert("Failed to detect Telegram ID. Please restart the app in Telegram.");
+        return;
+    }
+
     const tokens = views;
     const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
     const params = new URLSearchParams({
@@ -52,9 +58,11 @@ function openInMiniApp(adId, url, views) {
         telegram_id: telegram_id,
         tokens: tokens
     });
+
     const finalUrl = `${baseUrl}?${params.toString()}`;
+
     if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.openTelegramLink(finalUrl);
+        window.Telegram.WebApp.openLink(finalUrl); // استفاده از openLink برای باز کردن در وب‌ویو تلگرام
     } else {
         window.open(finalUrl, "_blank");
     }
