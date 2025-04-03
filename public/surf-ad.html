@@ -78,7 +78,7 @@
         const adUrl = urlParams.get('url');
         const duration = Math.min(parseInt(urlParams.get('duration')) || 21, 60); // حداکثر 60 ثانیه
         const tokens = parseInt(urlParams.get('tokens')) || 0;
-        const telegramId = urlParams.get('user_id');
+        const telegramId = urlParams.get('telegram_id');
 
         if (!adUrl) {
             document.body.innerHTML = `
