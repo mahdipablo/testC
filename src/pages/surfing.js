@@ -7,7 +7,7 @@ export function render() {
             if (data.success) {
                 content = data.ads.map(ad => `
                     <div class="ad-section">
-                        <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.received_clicks} tokens)</p>
+                        <p>Ad #${ad.id}: Visit ${ad.url} (+${parseFloat(ad.received_clicks).toFixed(5)} tokens)</p>
                         <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-received_clicks="${ad.received_clicks}">Claim</button>
                     </div>
                 `).join("");
@@ -61,11 +61,6 @@ function openInMiniApp(adId, url, receivedClicks) {
 
     const finalUrl = `${baseUrl}?${params.toString()}`;
 
-    // استفاده از متد openLink برای باز کردن لینک داخل مینی اپ
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.openLink(finalUrl); // این متد لینک را در خود مینی اپ باز می‌کند
-    } else {
-        // در صورتی که WebApp برای باز کردن لینک در دسترس نبود، از window.location.href استفاده می‌شود
-        window.location.href = finalUrl;
-    }
+    // ✅ لینک را داخل خود مینی اپ باز می‌کنیم
+    window.location.href = finalUrl;
 }
