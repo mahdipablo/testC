@@ -1,26 +1,41 @@
-// تابع اصلی رندر صفحه
+// تعریف تابع در سطح عمومی
+window.openSurfAd = (adId, url, duration, tokens) => {
+    if (window.Telegram && window.Telegram.WebApp) {
+        const surfAdPage = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Surf Ad</title>
+                <style>
+                    /* استایل‌ها همانند قبل */
+                </style>
+            </head>
+            <body>
+                <div class="timer-container">
+                    Time remaining: <span id="timer">${duration}</span> sec
+                </div>
+                <div class="iframe-container">
+                    <iframe src="${url}"></iframe>
+                </div>
+                <div id="success-message" class="success-message">
+                    ${tokens} tokens added to your balance!
+                </div>
+                <script>
+                    // تایمر و ارسال داده همانند قبل
+                </script>
+            </body>
+            </html>
+        `;
+        window.Telegram.WebApp.openTelegramLink(`https://yourdomain.com/surf-ad?id=${adId}&url=${encodeURIComponent(url)}&duration=${duration}&tokens=${tokens}`);
+    } else {
+        window.open(`/surf-ad?id=${adId}&url=${encodeURIComponent(url)}&duration=${duration}&tokens=${tokens}`, '_blank');
+    }
+};
+
 export function render() {
     let content = "<p>Loading ads...</p>";
 
-    // تابع برای باز کردن لینک درون مینی‌اپ تلگرام
-    const openInMiniApp = (adId, url, duration, tokens) => {
-        if (window.Telegram?.WebApp) {
-            // ساخت URL برای صفحه نمایش آگهی
-            const surfUrl = new URL('https://yourdomain.com/surf-ad');
-            surfUrl.searchParams.set('id', adId);
-            surfUrl.searchParams.set('url', encodeURIComponent(url));
-            surfUrl.searchParams.set('duration', duration);
-            surfUrl.searchParams.set('tokens', tokens);
-            
-            // باز کردن لینک درون مینی‌اپ
-            window.Telegram.WebApp.openTelegramLink(surfUrl.toString());
-        } else {
-            // Fallback برای مرورگرهای معمولی
-            window.open(`/surf-ad?id=${adId}&url=${encodeURIComponent(url)}&duration=${duration}&tokens=${tokens}`, '_blank');
-        }
-    };
-
-    // دریافت آگهی‌ها از سرور
     fetch("https://coin-surf.sbs/0/get_ads.php")
         .then(response => response.json())
         .then(data => {
@@ -29,8 +44,8 @@ export function render() {
                     <div class="ad-section">
                         <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens)</p>
                         <button 
-                            class="claim-btn"
-                            onclick="(${openInMiniApp.toString()})(${ad.id}, '${ad.url.replace(/'/g, "\\'")}', 21, ${ad.views})"
+                            class="claim-btn" 
+                            onclick="openSurfAd(${ad.id}, '${encodeURIComponent(ad.url)}', 21, ${ad.views})"
                         >
                             Claim
                         </button>
@@ -42,14 +57,13 @@ export function render() {
             document.querySelector(".surfing-page").innerHTML = content;
         })
         .catch(error => {
-            console.error("Error loading ads:", error);
-            document.querySelector(".surfing-page").innerHTML = "<p>Failed to load ads. Please try again.</p>";
+            document.querySelector(".surfing-page").innerHTML = "<p>Failed to load ads.</p>";
         });
 
     return `
         <div class="surfing-page">
-            <h2>Surf Ads</h2>
-            <p>Visit websites to earn tokens</p>
+            <h2>Surfing</h2>
+            <p>Surf websites to earn tokens.</p>
             <div id="ads-container">${content}</div>
         </div>
     `;
