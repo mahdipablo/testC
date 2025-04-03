@@ -1,4 +1,5 @@
 export function render() {
+    // ساختار HTML را برمی‌گرداند
     return `
       <div class="video-ads-page">
         <h2>Video Ads</h2>
@@ -8,16 +9,19 @@ export function render() {
     `;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+export function initVideoAds() {
+    // این تابع باید بعد از رندر شدن صفحه فراخوانی شود
     const button = document.getElementById("watch-ad-btn");
     if (button) {
         button.addEventListener("click", () => {
-            const testAdUrl = "https://testc-6b6.pages.dev/surf-ad?url=https%3A%2F%2Fexample.com&tokens=5&telegram_id=123456";
-            if (window.Telegram?.WebApp) {
+            const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || "123456"; // تستی
+            const testAdUrl = `https://testc-6b6.pages.dev/surf-ad?url=${encodeURIComponent("https://example.com")}&tokens=5&telegram_id=${telegramId}`;
+            
+            if (window.Telegram?.WebApp?.openTelegramLink) {
                 window.Telegram.WebApp.openTelegramLink(testAdUrl);
             } else {
                 window.open(testAdUrl, "_blank");
             }
         });
     }
-});
+}
