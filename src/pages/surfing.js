@@ -61,9 +61,6 @@ function openInMiniApp(adId, url, views) {
 
     const finalUrl = `${baseUrl}?${params.toString()}`;
 
-    if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.openLink(finalUrl); // استفاده از openLink برای باز کردن در وب‌ویو تلگرام
-    } else {
-        window.open(finalUrl, "_blank");
-    }
+    // ✅ لینک را داخل خود مینی اپ باز می‌کنیم
+    window.location.href = finalUrl;
 }
