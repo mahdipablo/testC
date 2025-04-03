@@ -10,9 +10,8 @@ export function render() {
                 const ads = data.ads;
                 if (ads.length > 0) {
                     content = ads.map(ad => `
-                        <li>
-                            Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens) 
-                            <button class="claim-btn" data-url="${ad.url}">Claim</button>
+                        <li>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens) 
+                            <a href="${ad.url}" target="_blank" class="claim-link">Claim</a>
                         </li>
                     `).join("");
                 } else {
