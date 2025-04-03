@@ -1,3 +1,4 @@
+// surfing.js
 export function render() {
     let content = "<p>Loading ads...</p>";
 
@@ -17,13 +18,11 @@ export function render() {
 
             document.querySelector(".surfing-page").innerHTML = content;
 
-            // اضافه کردن رویداد کلیک به دکمه‌های "Claim"
             document.querySelectorAll('.claim-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const adId = this.getAttribute('data-id');
                     const adUrl = this.getAttribute('data-url');
                     const views = this.getAttribute('data-views');
-
                     openInMiniApp(adId, adUrl, views);
                 });
             });
@@ -42,11 +41,9 @@ export function render() {
     `;
 }
 
-// تابع برای باز کردن تبلیغ در مینی‌اپ تلگرام
 function openInMiniApp(adId, url, views) {
-    const telegram_id = window.Telegram?.WebApp.initDataUnsafe?.user?.id || 123456789; // مقدار واقعی را دریافت کنید
-    const tokens = views; // تعداد توکن‌ها را از مقدار views دریافت می‌کنیم
-
+    const telegram_id = window.Telegram?.WebApp.initDataUnsafe?.user?.id || 123456789;
+    const tokens = views;
     const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
     const params = new URLSearchParams({
         id: adId,
@@ -55,9 +52,7 @@ function openInMiniApp(adId, url, views) {
         telegram_id: telegram_id,
         tokens: tokens
     });
-
     const finalUrl = `${baseUrl}?${params.toString()}`;
-
     if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.openTelegramLink(finalUrl);
     } else {
