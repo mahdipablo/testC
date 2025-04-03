@@ -5,22 +5,28 @@ export function render() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const ads = data.ads;
-                if (ads.length > 0) {
-                    content = ads.map(ad => `
-                        <div class="ad-section">
-                            <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens)</p>
-                            <a href="surf-ad.html?id=${ad.id}&url=${encodeURIComponent(ad.url)}&views=${ad.views}" target="_blank" class="claim-btn">Claim</a>
-                        </div>
-                    `).join("");
-                } else {
-                    content = "<p>No ads available.</p>";
-                }
+                content = data.ads.map(ad => `
+                    <div class="ad-section">
+                        <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens)</p>
+                        <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-views="${ad.views}">Claim</button>
+                    </div>
+                `).join("");
             } else {
-                content = `<p>Error loading ads: ${data.error}</p>`;
+                content = `<p>Error: ${data.error}</p>`;
             }
 
             document.querySelector(".surfing-page").innerHTML = content;
+
+            // اضافه کردن رویداد کلیک به دکمه‌های "Claim"
+            document.querySelectorAll('.claim-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const adId = this.getAttribute('data-id');
+                    const adUrl = this.getAttribute('data-url');
+                    const views = this.getAttribute('data-views');
+
+                    openInMiniApp(adId, adUrl, views);
+                });
+            });
         })
         .catch(error => {
             console.error("Error fetching ads:", error);
@@ -28,10 +34,33 @@ export function render() {
         });
 
     return `
-      <div class="surfing-page">
-        <h2>Surfing</h2>
-        <p>Surf websites to earn tokens.</p>
-        <div id="ads-container">${content}</div>
-      </div>
+        <div class="surfing-page">
+            <h2>Surf Ads</h2>
+            <p>Visit websites to earn tokens</p>
+            <div id="ads-container">${content}</div>
+        </div>
     `;
+}
+
+// تابع برای باز کردن تبلیغ در مینی‌اپ تلگرام
+function openInMiniApp(adId, url, views) {
+    const telegram_id = window.Telegram?.WebApp.initDataUnsafe?.user?.id || 123456789; // مقدار واقعی را دریافت کنید
+    const tokens = views; // تعداد توکن‌ها را از مقدار views دریافت می‌کنیم
+
+    const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
+    const params = new URLSearchParams({
+        id: adId,
+        url: encodeURIComponent(url),
+        views: views,
+        telegram_id: telegram_id,
+        tokens: tokens
+    });
+
+    const finalUrl = `${baseUrl}?${params.toString()}`;
+
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.openTelegramLink(finalUrl);
+    } else {
+        window.open(finalUrl, "_blank");
+    }
 }
