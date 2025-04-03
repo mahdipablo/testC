@@ -10,11 +10,10 @@ export function render() {
                 const ads = data.ads;
                 if (ads.length > 0) {
                     content = ads.map(ad => `
-                        <ul>
-                            <li>Ad# ${ad.id}: views ${ad.views} (+${ad.views} tokens) 
-                                <button onclick="window.open('${ad.url}', '_blank')" class="claim-btn">Visit</button>
-                            </li>
-                        </ul>
+                        <div class="ad-section">
+                            <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens)</p>
+                            <a href="${ad.url}" target="_blank" class="claim-btn">Claim</a>
+                        </div>
                     `).join("");
                 } else {
                     content = "<p>No ads available.</p>";
