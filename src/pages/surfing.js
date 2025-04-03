@@ -7,8 +7,8 @@ export function render() {
             if (data.success) {
                 content = data.ads.map(ad => `
                     <div class="ad-section">
-                        <p>Ad #${ad.id}: Visit ${ad.url} (+${parseFloat(ad.received_clicks).toFixed(5)} tokens)</p>
-                        <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-received_clicks="${ad.received_clicks}">Claim</button>
+                        <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens)</p>
+                        <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-views="${ad.views}">Claim</button>
                     </div>
                 `).join("");
             } else {
@@ -21,8 +21,8 @@ export function render() {
                 button.addEventListener('click', function () {
                     const adId = this.getAttribute('data-id');
                     const adUrl = this.getAttribute('data-url');
-                    const receivedClicks = this.getAttribute('data-received_clicks');
-                    openInMiniApp(adId, adUrl, receivedClicks);
+                    const views = this.getAttribute('data-views');
+                    openInMiniApp(adId, adUrl, views);
                 });
             });
         })
@@ -40,7 +40,7 @@ export function render() {
     `;
 }
 
-function openInMiniApp(adId, url, receivedClicks) {
+function openInMiniApp(adId, url, views) {
     // دریافت Telegram ID از Mini App
     const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
     
@@ -49,12 +49,12 @@ function openInMiniApp(adId, url, receivedClicks) {
         return;
     }
 
-    const tokens = receivedClicks;
+    const tokens = views;
     const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
     const params = new URLSearchParams({
         id: adId,
         url: encodeURIComponent(url),
-        views: receivedClicks,
+        views: views,
         telegram_id: telegram_id,
         tokens: tokens
     });
