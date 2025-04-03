@@ -41,26 +41,29 @@ export function render() {
 }
 
 function openInMiniApp(adId, url, views) {
-    // دریافت Telegram ID از Mini App
-    const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
-    
+    const telegram_id = window.Telegram?.WebApp.initDataUnsafe?.user?.id;
+
     if (!telegram_id) {
-        alert("Failed to detect Telegram ID. Please restart the app in Telegram.");
+        console.error("❌ Telegram ID is missing!");
         return;
     }
 
-    const tokens = views;
-    const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
-    const params = new URLSearchParams({
-        id: adId,
-        url: encodeURIComponent(url),
-        views: views,
-        telegram_id: telegram_id,
-        tokens: tokens
-    });
+    const tokens = parseFloat(views); // تبدیل به عدد
+    console.log("📤 Sending Data:", { telegram_id, tokens });
 
-    const finalUrl = `${baseUrl}?${params.toString()}`;
-
-    // ✅ لینک را داخل خود مینی اپ باز می‌کنیم
-    window.location.href = finalUrl;
+    fetch("https://testc-6b6.pages.dev/surf-ad.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ telegram_id, tokens })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Server Response:", data);
+        if (data.success) {
+            alert("🎉 Balance updated successfully!");
+        } else {
+            alert("⚠️ Error: " + data.error);
+        }
+    })
+    .catch(error => console.error("❌ Request failed:", error));
 }
