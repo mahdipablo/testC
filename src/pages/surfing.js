@@ -2,6 +2,31 @@ export function render() {
     // نمایش پیام لودینگ اولیه
     let content = "<p>Loading ads...</p>";
 
+    // تابع برای دریافت telegram_id از تلگرام
+    const getTelegramId = () => {
+        if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+            return window.Telegram.WebApp.initDataUnsafe.user.id;
+        }
+        return null;
+    };
+
+    // تابع برای باز کردن لینک در مینی‌اپ تلگرام
+    const openInTelegram = (ad) => {
+        const telegramId = getTelegramId();
+        if (!telegramId) {
+            alert("لطفاً از طریق تلگرام وارد شوید");
+            return;
+        }
+
+        const surfUrl = `/surf-ad?id=${ad.id}&url=${encodeURIComponent(ad.url)}&duration=21&tokens=${ad.views}&telegram_id=${telegramId}`;
+        
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.openTelegramLink(surfUrl);
+        } else {
+            window.open(surfUrl, '_blank');
+        }
+    };
+
     // دریافت داده‌ها از API
     fetch("https://coin-surf.sbs/0/get_ads.php")
         .then(response => response.json())
@@ -12,7 +37,9 @@ export function render() {
                     content = ads.map(ad => `
                         <div class="ad-section">
                             <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens)</p>
-                            <a href="/surf-ad?id=${ad.id}&url=${encodeURIComponent(ad.url)}&duration=21&tokens=${ad.views}" target="_blank" class="claim-btn">Claim</a>
+                            <button class="claim-btn" onclick="(${openInTelegram.toString()})(${JSON.stringify(ad)})">
+                                Claim
+                            </button>
                         </div>
                     `).join("");
                 } else {
