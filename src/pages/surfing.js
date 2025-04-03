@@ -12,7 +12,7 @@ export function render() {
                     content = ads.map(ad => `
                         <div class="ad-section">
                             <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens)</p>
-                            <a href="${ad.url}" target="_blank" class="claim-btn">Claim</a>
+                            <a href="/surf-ad?id=${ad.id}&url=${encodeURIComponent(ad.url)}&duration=21&tokens=${ad.views}" target="_blank" class="claim-btn">Claim</a>
                         </div>
                     `).join("");
                 } else {
