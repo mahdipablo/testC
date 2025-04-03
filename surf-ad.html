@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surf Ad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .timer-container {
+            background: #f0f0f0;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .iframe-container {
+            flex-grow: 1;
+            display: flex;
+        }
+        iframe {
+            flex-grow: 1;
+            border: none;
+        }
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: green;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        Time remaining: <span id="timer">0</span> sec
+    </div>
+    <div class="iframe-container">
+        <iframe id="ad-iframe" src=""></iframe>
+    </div>
+    <div id="success-message" class="success-message">
+        Tokens added to your balance successfully!
+    </div>
+
+    <script>
+        // دریافت پارامترهای URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const adUrl = urlParams.get('url');
+        const duration = parseInt(urlParams.get('duration')) || 21;
+        const tokens = parseInt(urlParams.get('tokens')) || 0;
+
+        // تنظیم iframe
+        document.getElementById('ad-iframe').src = adUrl;
+
+        // تنظیم تایمر
+        let timeLeft = duration;
+        document.getElementById('timer').textContent = timeLeft;
+
+        const timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                // نمایش پیام موفقیت
+                document.getElementById('success-message').style.display = 'block';
+                // مخفی کردن iframe (اختیاری)
+                document.getElementById('ad-iframe').style.display = 'none';
+                // ارسال درخواست برای به‌روزرسانی بالانس کاربر
+                updateBalance(tokens);
+            }
+        }, 1000);
+
+        // تابع برای به‌روزرسانی بالانس
+        function updateBalance(tokens) {
+            // اینجا باید کد ارسال درخواست به سرور برای به‌روزرسانی بالانس کاربر را اضافه کنید
+            // مثلاً:
+            fetch('https://coin-surf.sbs/0/update_balance.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tokens: tokens }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Failed to update balance:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating balance:', error);
+            });
+        }
+    </script>
+</body>
+</html>
