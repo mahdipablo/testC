@@ -1,7 +1,7 @@
 // src/main.js
 import { render as renderHome } from './pages/home.js';
 import { render as renderTasks } from './pages/tasks.js';
-import { render as renderVideoAds, initVideoAds } from './pages/videoAds.js';
+import { render as renderVideoAds } from './pages/videoAds.js';
 import { render as renderSurfing } from './pages/surfing.js';
 import { render as renderReferrals } from './pages/referrals.js';
 
@@ -61,11 +61,6 @@ function renderContent() {
   const page = pages[currentTab];
   if (page && page.render) {
     content.innerHTML = page.render();
-    
-    // Initialize page-specific functionality
-    if (currentTab === "video-ads") {
-      initVideoAds();
-    }
   } else {
     content.innerHTML = `<h2>Page Not Found</h2><p>Content for ${currentTab} is not available.</p>`;
   }
