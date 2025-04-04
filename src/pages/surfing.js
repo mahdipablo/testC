@@ -1,4 +1,4 @@
-export function render() {
+function render() {
     let content = "<p>Loading ads...</p>";
 
     // درخواست به سرور برای دریافت تبلیغات
@@ -52,30 +52,26 @@ function openInMiniApp(adId, url, receivedClicks) {
         return;
     }
 
-    // توکن‌ها بر اساس received_clicks محاسبه می‌شود
     const tokens = receivedClicks;
-    const baseUrl = "https://testc-6b6.pages.dev/surf-ad"; // دامنه باید تأیید شده باشد
+    const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
     const params = new URLSearchParams({
         id: adId,
-        url: encodeURIComponent(url),  // URL را انکود کرده و ارسال می‌کنیم
-        received_clicks: receivedClicks, // استفاده از نام دقیق‌تر
+        url: encodeURIComponent(url),
+        received_clicks: receivedClicks,
         telegram_id: telegram_id,
         tokens: tokens
     });
 
     const finalUrl = `${baseUrl}?${params.toString()}`;
 
-    // چک کردن پشتیبانی دامنه توسط تلگرام
     if (window.Telegram?.WebApp?.openTelegramLink) {
         try {
             window.Telegram.WebApp.openTelegramLink(finalUrl);
         } catch (error) {
             console.error("Telegram link error:", error);
-            // اگر لینک پشتیبانی نشود، از روش افت‌بک (fallback) استفاده کنید
             window.location.href = finalUrl;
         }
     } else {
-        // اگر تلگرام در دسترس نیست، لینک مستقیم باز شود
         window.location.href = finalUrl;
     }
 }
