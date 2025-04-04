@@ -1,6 +1,6 @@
 // src/main.js
 import { render as renderHome } from './pages/home.js';
-import { render as renderTasks } from './pages/tasks.js';
+import Tasks from "./pages/tasks.jsx";
 import { render as renderVideoAds } from './pages/videoAds.js';
 import { render as renderSurfing } from './pages/surfing.js';
 import { render as renderReferrals } from './pages/referrals.js';
