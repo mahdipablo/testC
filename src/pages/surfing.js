@@ -1,28 +1,32 @@
 export function render() {
     let content = "<p>Loading ads...</p>";
 
+    // درخواست به سرور برای دریافت تبلیغات
     fetch("https://coin-surf.sbs/0/get_ads.php")
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                // نمایش لیست تبلیغات
                 content = data.ads.map(ad => `
                     <div class="ad-section">
-                        <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.views} tokens)</p>
-                        <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-views="${ad.views}">Claim</button>
+                        <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.received_clicks} tokens)</p>
+                        <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-received-clicks="${ad.received_clicks}">Claim</button>
                     </div>
                 `).join("");
             } else {
                 content = `<p>Error: ${data.error}</p>`;
             }
 
+            // قرار دادن محتویات در صفحه
             document.querySelector(".surfing-page").innerHTML = content;
 
+            // اضافه کردن رویداد کلیک برای دکمه‌ها
             document.querySelectorAll('.claim-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const adId = this.getAttribute('data-id');
                     const adUrl = this.getAttribute('data-url');
-                    const views = this.getAttribute('data-views');
-                    openInMiniApp(adId, adUrl, views);
+                    const receivedClicks = this.getAttribute('data-received-clicks');
+                    openInMiniApp(adId, adUrl, receivedClicks);
                 });
             });
         })
@@ -40,7 +44,7 @@ export function render() {
     `;
 }
 
-function openInMiniApp(adId, url, views) {
+function openInMiniApp(adId, url, receivedClicks) {
     // دریافت Telegram ID از Mini App
     const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
     
@@ -49,18 +53,19 @@ function openInMiniApp(adId, url, views) {
         return;
     }
 
-    const tokens = views;
-    const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
+    // توکن‌ها بر اساس received_clicks محاسبه می‌شود
+    const tokens = receivedClicks;
+    const baseUrl = "https://t.me/someValidLink"; // استفاده از لینک معتبر تلگرام
     const params = new URLSearchParams({
         id: adId,
         url: encodeURIComponent(url),
-        views: views,
+        views: receivedClicks, // تغییر نام از views به receivedClicks
         telegram_id: telegram_id,
         tokens: tokens
     });
 
     const finalUrl = `${baseUrl}?${params.toString()}`;
 
-    // ✅ لینک را داخل خود مینی اپ باز می‌کنیم
-    window.location.href = finalUrl;
+    // باز کردن لینک در مینی اپ
+    window.Telegram.WebApp.openLink(finalUrl);
 }
