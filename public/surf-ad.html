@@ -35,10 +35,9 @@
 
 <div id="app"></div>
 
-<script type="module">
-    import { render } from './surfing.js';
-
-    // بارگذاری محتوای صفحه
+<script src="surfing.js"></script>
+<script>
+    // فراخوانی تابع render پس از لود اسکریپت
     document.getElementById("app").innerHTML = render();
 </script>
 
