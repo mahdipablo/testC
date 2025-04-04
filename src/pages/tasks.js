@@ -1,17 +1,5 @@
 // src/pages/tasks.js
 export function render() {
-
-
-document.addEventListener('DOMContentLoaded', function () {
-  window.Telegram.WebApp.BackButton.show();
-
-  window.Telegram.WebApp.BackButton.onClick(() => {
-    window.location = 'home.js';
-  });
-});
-
-
-  
   // بعد از بارگذاری صفحه، این کد اجرا میشه
   setTimeout(() => {
     const claimBtn = document.querySelector('button');
