@@ -20,6 +20,14 @@
       padding: 10px;
       text-align: center;
     }
+    .browser-check {
+      background: #ffc107;
+      color: #212529;
+      padding: 10px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
     .timer-container {
       background: #e9ecef;
       padding: 10px;
@@ -60,19 +68,37 @@
   <div class="header">
     <h2>Ad Surfing</h2>
   </div>
+
+  <!-- نمایش نوع مرورگر -->
+  <div class="browser-check" id="browser-check">در حال تشخیص مرورگر...</div>
+
   <div class="timer-container">
     Time remaining: <span id="timer">0</span> sec
   </div>
+
   <div class="iframe-container">
     <div class="loading">Loading ad...</div>
     <iframe id="ad-iframe" src=""></iframe>
   </div>
+
   <div id="success-message" class="success-message">
     <p>🎉 <span id="earned-tokens">0.00000</span> tokens added to your balance!</p>
     <p>You can close this window now.</p>
   </div>
 
   <script>
+    // تشخیص مرورگر مینی‌اپ یا خارجی
+    const isTelegramWebApp =
+      typeof window.Telegram !== "undefined" &&
+      typeof window.Telegram.WebApp !== "undefined";
+
+    const browserElement = document.getElementById('browser-check');
+    if (isTelegramWebApp) {
+      browserElement.textContent = "✅ مرورگر داخلی مینی‌اپ تلگرام شناسایی شد.";
+    } else {
+      browserElement.textContent = "🌐 مرورگر خارجی (مثل Chrome یا Safari) شناسایی شد.";
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const adUrl = decodeURIComponent(urlParams.get('url'));
     const duration = Math.min(parseInt(urlParams.get('duration')) || 21, 60);
