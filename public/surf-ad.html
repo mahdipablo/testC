@@ -5,41 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Surf Ads</title>
     <style>
+        /* استایل‌ها */
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
         }
-
         .ad-section {
+            margin-bottom: 15px;
+            padding: 10px;
             border: 1px solid #ddd;
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        .claim-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
             border-radius: 5px;
         }
-
+        .claim-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
         .claim-btn:hover {
             background-color: #45a049;
         }
     </style>
 </head>
 <body>
+    <h1>Surf Ads</h1>
+    <div id="ads-container">
+        <p>Loading ads...</p>
+    </div>
 
-<div id="app"></div>
-
-<script src="surfing.js"></script>
-<script>
-    // فراخوانی تابع render پس از لود اسکریپت
-    document.getElementById("app").innerHTML = render();
-</script>
-
+    <script src="surfing.js"></script>
 </body>
 </html>
