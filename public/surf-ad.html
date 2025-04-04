@@ -1,40 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Surf Ads</title>
     <style>
-        /* استایل‌ها */
         body {
             font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .surfing-page {
             padding: 20px;
         }
         .ad-section {
-            margin-bottom: 15px;
-            padding: 10px;
+            background-color: #fff;
             border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
             border-radius: 5px;
         }
         .claim-btn {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            padding: 10px 20px;
             cursor: pointer;
+            border-radius: 5px;
         }
         .claim-btn:hover {
-            background-color: #45a049;
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h1>Surf Ads</h1>
-    <div id="ads-container">
-        <p>Loading ads...</p>
+    <div id="ads-container" class="surfing-page">
+        <h2>Surf Ads</h2>
+        <p>Visit websites to earn tokens</p>
+        <!-- تبلیغات به‌طور داینامیک از جاوا اسکریپت بارگذاری خواهند شد -->
     </div>
 
-    <script src="surfing.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let content = "<p>Loading ads...</p>";
+
+            // درخواست به سرور برای دریافت تبلیغات
+            fetch("https://coin-surf.sbs/0/get_ads.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        content = data.ads.map(ad => `
+                            <div class="ad-section">
+                                <p>Ad #${ad.id}: Visit ${ad.url} (+${parseFloat(ad.received_clicks).toFixed(5)} tokens)</p>
+                                <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-received_clicks="${ad.received_clicks}">Claim</button>
+                            </div>
+                        `).join("");
+                    } else {
+                        content = `<p>Error: ${data.error}</p>`;
+                    }
+
+                    document.querySelector(".surfing-page").innerHTML = content;
+
+                    // اضافه کردن رویداد کلیک برای دکمه‌ها
+                    document.querySelectorAll('.claim-btn').forEach(button => {
+                        button.addEventListener('click', function () {
+                            const adId = this.getAttribute('data-id');
+                            const adUrl = this.getAttribute('data-url');
+                            const receivedClicks = this.getAttribute('data-received_clicks');
+                            openInMiniApp(adId, adUrl, receivedClicks);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching ads:", error);
+                    document.querySelector(".surfing-page").innerHTML = "<p>Failed to load ads.</p>";
+                });
+        });
+
+        function openInMiniApp(adId, url, receivedClicks) {
+            // دریافت Telegram ID از Mini App
+            const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
+            
+            if (!telegram_id) {
+                alert("Failed to detect Telegram ID. Please restart the app in Telegram.");
+                return;
+            }
+
+            const tokens = receivedClicks;
+            const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
+            const params = new URLSearchParams({
+                id: adId,
+                url: encodeURIComponent(url),
+                views: receivedClicks,
+                telegram_id: telegram_id,
+                tokens: tokens
+            });
+
+            const finalUrl = `${baseUrl}?${params.toString()}`;
+
+            // ✅ لینک را داخل خود مینی اپ باز می‌کنیم
+            window.Telegram.WebApp.openLink(finalUrl);
+        }
+    </script>
 </body>
 </html>
