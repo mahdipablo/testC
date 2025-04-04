@@ -9,9 +9,15 @@ export function render() {
           <li>Task 2: Share with a friend (+20 TON) <button>Claim</button></li>
           <li>Task 3: Subscribe to our YouTube channel (+100 TON) <button>Claim</button></li>
         </ul>
+        
+        <!-- تبلیغات Surfe.pro -->
+        <script src="//static.surfe.pro/js/net.js"></script>
+        <ins class="surfe-be" data-sid="410772"></ins>
+        <script>(adsurfebe = window.adsurfebe || []).push({});</script>
+
+        <script src="//static.surfe.pro/js/net.js"></script>
+        <ins class="surfe-be" data-sid="410773"></ins>
+        <script>(adsurfebe = window.adsurfebe || []).push({});</script>
       </div>
-      <script src="//static.surfe.pro/js/net.js"></script>
-      <ins class="surfe-be" data-sid="410772"></ins>
-      <script>(adsurfebe = window.adsurfebe || []).push({});</script>
     `;
 }
