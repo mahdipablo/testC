@@ -1,11 +1,9 @@
 export function render() {
-    // دریافت داده‌های کاربر از تلگرام (قسمت قبلی بدون تغییر)
     const initDataUnsafe = window.Telegram?.WebApp?.initDataUnsafe || {};
     const first_name = initDataUnsafe.user?.first_name || "Unknown";
     const userId = initDataUnsafe.user?.id || "N/A";
     const initData = window.Telegram?.WebApp?.initData || "";
 
-    // HTML اولیه (قسمت قبلی بدون تغییر)
     const html = `
       <div class="home-page">
         <div class="header">
@@ -46,6 +44,13 @@ export function render() {
           <div class="ton-icon">💎</div>
           <button class="claim-btn">Claim</button>
         </div>
+
+        <!-- 🔻 تبلیغات Surfe.pro -->
+        <div class="ads-section" style="margin-top: 20px;">
+          <script src="//static.surfe.pro/js/net.js"></script>
+          <ins class="surfe-be" data-sid="410771"></ins>
+          <script>(adsurfebe = window.adsurfebe || []).push({});</script>
+        </div>
       </div>
     `;
 
@@ -58,99 +63,4 @@ export function render() {
     }, 0);
 
     return html;
-}
-
-// تابع اعتبارسنجی (بدون تغییر)
-async function validateData(initData) {
-    const validationResult = document.getElementById("validation-result");
-    if (!validationResult) return;
-
-    validationResult.textContent = "Validating...";
-    validationResult.className = "loading";
-
-    try {
-        const response = await fetch("https://coin-surf.sbs/0/login.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ initData }),
-        });
-
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-        const result = await response.json();
-        validationResult.textContent = result.success ? "Data is valid!" : `Error: ${result.error || "Unknown error"}`;
-        validationResult.className = result.success ? "success" : "error";
-    } catch (error) {
-        validationResult.textContent = "Error: " + error.message;
-        validationResult.className = "error";
-    }
-}
-
-// تابع برای دریافت موجودی بر اساس telegram_id (اصلاح‌شده)
-async function fetchBalance(telegramId) {
-    const balanceElement = document.getElementById("balance");
-    if (!balanceElement) return;
-
-    // نمایش وضعیت در حال بارگذاری
-    balanceElement.textContent = "Loading...";
-    balanceElement.className = "loading";
-
-    try {
-        // ارسال درخواست به balance.php با telegram_id
-        const response = await fetch(`https://coin-surf.sbs/0/balance.php?id=${telegramId}`);
-        
-        // بررسی وضعیت پاسخ
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        
-        // پردازش پاسخ موفق
-        if (result.success) {
-            balanceElement.textContent = `${result.balance} TON`; // نمایش balance با واحد TON
-            balanceElement.className = "success";
-            
-            // اطلاعات اضافی برای دیباگ (اختیاری)
-            console.log('Balance details:', {
-                telegram_id: result.telegram_id,
-                user_id: result.user_id,
-                last_updated: result.last_updated,
-                balance: result.balance
-            });
-        } 
-        // پردازش خطا
-        else {
-            balanceElement.textContent = result.error || "Error loading balance";
-            balanceElement.className = "error";
-            
-            // پیشنهاد ایجاد حساب جدید اگر کاربر یافت نشد
-            if (result.error === "User not found in financial records") {
-                console.warn("User financial record not found, consider creating one");
-                // می‌توانید اینجا تابع ایجاد حساب جدید را فراخوانی کنید
-            }
-        }
-    } catch (error) {
-        // مدیریت خطاهای شبکه/سیستم
-        balanceElement.textContent = "Connection error: " + error.message;
-        balanceElement.className = "error";
-        console.error("Fetch balance failed:", error);
-        
-        // نمایش اطلاعات بیشتر برای دیباگ
-        if (error.response) {
-            console.error("Response details:", await error.response.json());
-        }
-    }
-}
-
-// تابع برای تنظیم دکمه اعتبارسنجی مجدد (بدون تغییر)
-function setupValidationButton(initData) {
-    const validateBtn = document.getElementById("validate-btn");
-    if (validateBtn) {
-        validateBtn.addEventListener("click", async () => {
-            validateBtn.disabled = true;
-            await validateData(initData);
-            validateBtn.disabled = false;
-        });
-    }
 }
