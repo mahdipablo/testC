@@ -21,7 +21,7 @@ export function render() {
                 button.addEventListener('click', function () {
                     const adId = this.getAttribute('data-id');
                     const adUrl = this.getAttribute('data-url');
-                    const receivedClicks = this.getAttribute('data-received_clicks');
+                    const receivedClicks = this.getAttribute('data-received_clicks'); // بدون تغییر فرمت
                     openInMiniApp(adId, adUrl, receivedClicks);
                 });
             });
@@ -41,7 +41,6 @@ export function render() {
 }
 
 function openInMiniApp(adId, url, receivedClicks) {
-    // دریافت Telegram ID از Mini App
     const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
     
     if (!telegram_id) {
@@ -49,18 +48,17 @@ function openInMiniApp(adId, url, receivedClicks) {
         return;
     }
 
-    const tokens = receivedClicks;
+    const tokens = receivedClicks; // حفظ مقدار اصلی
     const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
     const params = new URLSearchParams({
         id: adId,
         url: encodeURIComponent(url),
-        views: receivedClicks,
+        views: receivedClicks, // استفاده از receivedClicks به جای views
         telegram_id: telegram_id,
-        tokens: tokens
+        tokens: receivedClicks // اطمینان از یکسان بودن
     });
 
     const finalUrl = `${baseUrl}?${params.toString()}`;
 
-    // ✅ لینک را داخل خود مینی اپ باز می‌کنیم
     window.location.href = finalUrl;
 }
