@@ -68,11 +68,25 @@
         <iframe id="ad-iframe" src="" onload="document.querySelector('.loading').style.display = 'none';"></iframe>
     </div>
     <div id="success-message" class="success-message">
-        <p>🎉 ${parseFloat(tokens).toFixed(5)} tokens added to your balance!</p>
+        <p>🎉 <span id="earned-tokens">0.00000</span> tokens added to your balance!</p>
         <p>You can close this window now.</p>
     </div>
 
     <script>
+        // راه‌اندازی Telegram WebApp
+        if (window.Telegram?.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.BackButton.show();
+
+            Telegram.WebApp.BackButton.onClick(() => {
+                if (timeLeft > 0) {
+                    alert("You must finish watching the ad first!");
+                } else {
+                    Telegram.WebApp.close();
+                }
+            });
+        }
+
         // دریافت و اعتبارسنجی پارامترهای URL
         const urlParams = new URLSearchParams(window.location.search);
         const adUrl = urlParams.get('url');
@@ -119,14 +133,14 @@
 
         // تابع کامل کردن مشاهده آگهی
         function completeAdViewing() {
-            // نمایش پیام موفقیت
+            document.getElementById('earned-tokens').textContent = parseFloat(tokens).toFixed(5);
             document.getElementById('success-message').style.display = 'block';
             iframe.style.opacity = '0.5';
-            
+
             // ارسال درخواست برای به‌روزرسانی بالانس
             updateBalance(parseFloat(tokens), telegramId);
-            
-            // بستن خودکار پس از 5 ثانیه (اختیاری)
+
+            // بستن خودکار پس از 5 ثانیه
             setTimeout(() => {
                 if (window.Telegram?.WebApp?.close) {
                     window.Telegram.WebApp.close();
@@ -147,9 +161,9 @@
                         tokens: tokens.toFixed(5) // ارسال به‌صورت اعشاری با 5 رقم
                     }),
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (!data.success) {
                     console.error('Failed to update balance:', data.error);
                     document.getElementById('success-message').innerHTML = `
