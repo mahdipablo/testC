@@ -2,58 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Surf Ad</title>
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const adId = urlParams.get('id');
-        const url = decodeURIComponent(urlParams.get('url') || '');
-        const views = urlParams.get('views');
-        const telegram_id = urlParams.get('telegram_id');
-        const tokens = urlParams.get('tokens');
-
-        if (!url || !adId || !telegram_id || !tokens) {
-            document.body.innerHTML = "<p>Invalid or missing parameters.</p>";
-        } else {
-            // باز کردن سایت تبلیغاتی در پنجره
-            const adWindow = window.open(url, '_blank');
-
-            // بعد از 15 ثانیه پنجره رو ببنده و امتیاز بده
-            setTimeout(() => {
-                if (adWindow && !adWindow.closed) {
-                    adWindow.close();
-                }
-
-                // ارسال به سرور برای دریافت توکن
-                fetch("https://coin-surf.sbs/0/complete_surfing.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        telegram_id: telegram_id,
-                        ad_id: adId,
-                        tokens: tokens
-                    })
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        alert("✅ Tokens added to your account!");
-                    } else {
-                        alert("⚠️ Failed to update balance: " + (result.error || "Unknown error"));
-                    }
-                    window.close(); // صفحه فعلی رو هم ببنده
-                })
-                .catch(error => {
-                    console.error("Error sending completion:", error);
-                    alert("❌ Error updating tokens");
-                    window.close();
-                });
-
-            }, 15000);
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surf Ads</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
         }
-    </script>
+
+        .ad-section {
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .claim-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .claim-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h2>Surfing Ad...</h2>
-    <p>Please wait while your ad is loading...</p>
+
+<div id="app"></div>
+
+<script type="module">
+    import { render } from './surfing.js';
+
+    // بارگذاری محتوای صفحه
+    document.getElementById("app").innerHTML = render();
+</script>
+
 </body>
 </html>
