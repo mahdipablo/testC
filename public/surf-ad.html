@@ -1,71 +1,179 @@
-export function render() {
-    let content = "<p>Loading ads...</p>";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surf Ad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #f8f9fa;
+        }
+        .header {
+            background: #0088cc;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .timer-container {
+            background: #e9ecef;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .iframe-container {
+            flex-grow: 1;
+            display: flex;
+            position: relative;
+        }
+        iframe {
+            flex-grow: 1;
+            border: none;
+            transition: opacity 0.3s;
+        }
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #28a745;
+            font-size: 24px;
+            font-weight: bold;
+            background: #f8f9fa;
+        }
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Ad Surfing</h2>
+    </div>
+    <div class="timer-container">
+        Time remaining: <span id="timer">0</span> sec
+    </div>
+    <div class="iframe-container">
+        <div class="loading">Loading ad...</div>
+        <iframe id="ad-iframe" src="" onload="document.querySelector('.loading').style.display = 'none';"></iframe>
+    </div>
+    <div id="success-message" class="success-message">
+        <p>🎉 ${tokens} tokens added to your balance!</p>
+        <p>You can close this window now.</p>
+    </div>
 
-    // درخواست به سرور برای دریافت تبلیغات
-    fetch("https://coin-surf.sbs/0/get_ads.php")
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // نمایش لیست تبلیغات
-                content = data.ads.map(ad => `
-                    <div class="ad-section">
-                        <p>Ad #${ad.id}: Visit ${ad.url} (+${ad.received_clicks} tokens)</p>
-                        <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-received-clicks="${ad.received_clicks}">Claim</button>
-                    </div>
-                `).join("");
-            } else {
-                content = `<p>Error: ${data.error}</p>`;
+    <script>
+        // دریافت و اعتبارسنجی پارامترهای URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const adUrl = urlParams.get('url');
+        const duration = Math.min(parseInt(urlParams.get('duration')) || 21, 60); // حداکثر 60 ثانیه
+        const tokens = parseInt(urlParams.get('tokens')) || 0;
+        const telegramId = urlParams.get('user_id');
+
+        if (!adUrl) {
+            document.body.innerHTML = `
+                <div class="header">
+                    <h2>Error</h2>
+                </div>
+                <div style="padding: 20px; color: #dc3545;">
+                    <p>Invalid ad URL. Please try again.</p>
+                </div>
+            `;
+            throw new Error('Missing ad URL parameter');
+        }
+
+        // تنظیم iframe با بررسی امنیتی
+        const iframe = document.getElementById('ad-iframe');
+        try {
+            iframe.src = new URL(adUrl).toString();
+        } catch (e) {
+            iframe.src = 'about:blank';
+            console.error('Invalid URL:', adUrl);
+        }
+
+        // تنظیم تایمر پیشرفته
+        let timeLeft = duration;
+        const timerElement = document.getElementById('timer');
+        timerElement.textContent = timeLeft;
+
+        const timerInterval = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            timerElement.style.color = timeLeft <= 5 ? '#dc3545' : '#212529';
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                completeAdViewing();
             }
+        }, 1000);
 
-            // قرار دادن محتویات در صفحه
-            document.querySelector(".surfing-page").innerHTML = content;
+        // تابع کامل کردن مشاهده آگهی
+        function completeAdViewing() {
+            // نمایش پیام موفقیت
+            document.getElementById('success-message').style.display = 'block';
+            iframe.style.opacity = '0.5';
+            
+            // ارسال درخواست برای به‌روزرسانی بالانس
+            updateBalance(tokens, telegramId);
+            
+            // بستن خودکار پس از 5 ثانیه (اختیاری)
+            setTimeout(() => {
+                if (window.Telegram?.WebApp?.close) {
+                    window.Telegram.WebApp.close();
+                }
+            }, 5000);
+        }
 
-            // اضافه کردن رویداد کلیک برای دکمه‌ها
-            document.querySelectorAll('.claim-btn').forEach(button => {
-                button.addEventListener('click', function () {
-                    const adId = this.getAttribute('data-id');
-                    const adUrl = this.getAttribute('data-url');
-                    const receivedClicks = this.getAttribute('data-received-clicks');
-                    openInMiniApp(adId, adUrl, receivedClicks);
+        // تابع به‌روزرسانی بالانس با مدیریت خطا
+        async function updateBalance(tokens, userId) {
+            try {
+                const response = await fetch('https://coin-surf.sbs/0/update_balance.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        telegram_id: userId,
+                        tokens: tokens 
+                    }),
                 });
-            });
-        })
-        .catch(error => {
-            console.error("Error fetching ads:", error);
-            document.querySelector(".surfing-page").innerHTML = "<p>Failed to load ads.</p>";
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    console.error('Failed to update balance:', data.error);
+                    document.getElementById('success-message').innerHTML = `
+                        <p style="color: #dc3545;">⚠️ Error updating balance</p>
+                        <p>Please contact support.</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                document.getElementById('success-message').innerHTML = `
+                    <p style="color: #dc3545;">⚠️ Network error</p>
+                    <p>Please check your connection.</p>
+                `;
+            }
+        }
+
+        // مدیریت رویداد قبل از بسته شدن صفحه
+        window.addEventListener('beforeunload', (e) => {
+            if (timeLeft > 0) {
+                e.preventDefault();
+                e.returnValue = 'Are you sure you want to leave? You may not receive tokens.';
+                return e.returnValue;
+            }
         });
-
-    return `
-        <div class="surfing-page">
-            <h2>Surf Ads</h2>
-            <p>Visit websites to earn tokens</p>
-            <div id="ads-container">${content}</div>
-        </div>
-    `;
-}
-
-function openInMiniApp(adId, url, receivedClicks) {
-    // دریافت Telegram ID از Mini App
-    const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
-    
-    if (!telegram_id) {
-        alert("Failed to detect Telegram ID. Please restart the app in Telegram.");
-        return;
-    }
-
-    // محاسبه مقدار توکن‌ها
-    const tokens = receivedClicks;
-    const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
-    const params = new URLSearchParams({
-        id: adId,
-        url: encodeURIComponent(url),
-        views: receivedClicks,
-        telegram_id: telegram_id,
-        tokens: tokens
-    });
-
-    const finalUrl = `${baseUrl}?${params.toString()}`;
-
-    // ✅ استفاده از window.open به جای تغییر location
-    window.open(finalUrl, "_blank");
-}
+    </script>
+</body>
+</html>
