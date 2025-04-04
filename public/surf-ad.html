@@ -53,19 +53,19 @@ function openInMiniApp(adId, url, receivedClicks) {
         return;
     }
 
-    // توکن‌ها بر اساس received_clicks محاسبه می‌شود
+    // محاسبه مقدار توکن‌ها
     const tokens = receivedClicks;
     const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
     const params = new URLSearchParams({
         id: adId,
         url: encodeURIComponent(url),
-        views: receivedClicks, // تغییر نام از views به receivedClicks
+        views: receivedClicks,
         telegram_id: telegram_id,
         tokens: tokens
     });
 
     const finalUrl = `${baseUrl}?${params.toString()}`;
 
-    // باز کردن لینک در مینی اپ
-    window.location.href = finalUrl;
+    // ✅ استفاده از window.open به جای تغییر location
+    window.open(finalUrl, "_blank");
 }
