@@ -21,7 +21,7 @@ export function render() {
                 button.addEventListener('click', function () {
                     const adId = this.getAttribute('data-id');
                     const adUrl = this.getAttribute('data-url');
-                    const receivedClicks = this.getAttribute('data-received_clicks'); // بدون تغییر فرمت
+                    const receivedClicks = this.getAttribute('data-received_clicks');
                     openInMiniApp(adId, adUrl, receivedClicks);
                 });
             });
@@ -48,17 +48,15 @@ function openInMiniApp(adId, url, receivedClicks) {
         return;
     }
 
-    const tokens = receivedClicks; // حفظ مقدار اصلی
+    const tokens = receivedClicks;
     const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
     const params = new URLSearchParams({
         id: adId,
-        url: encodeURIComponent(url),
-        views: receivedClicks, // استفاده از receivedClicks به جای views
+        url: url, // بدون encodeURIComponent چون صفحه مقصد خودش decode می‌کنه
         telegram_id: telegram_id,
-        tokens: receivedClicks // اطمینان از یکسان بودن
+        tokens: tokens
     });
 
     const finalUrl = `${baseUrl}?${params.toString()}`;
-
     window.location.href = finalUrl;
 }
