@@ -1,7 +1,6 @@
 export function render() {
     let content = "<p>Loading ads...</p>";
 
-    // دریافت تبلیغات از سرور
     fetch("https://coin-surf.sbs/0/get_ads.php")
         .then(response => response.json())
         .then(data => {
@@ -26,14 +25,13 @@ export function render() {
 
             document.querySelector(".surfing-page").innerHTML = content;
 
-            // اضافه‌کردن رویداد کلیک
             document.querySelectorAll('.claim-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const adId = this.getAttribute('data-id');
                     const encodedUrl = this.getAttribute('data-url');
                     const receivedClicks = this.getAttribute('data-received-clicks');
 
-                    openInMiniApp(adId, encodedUrl, receivedClicks);
+                    openAdPage(adId, encodedUrl, receivedClicks);
                 });
             });
         })
@@ -51,7 +49,7 @@ export function render() {
     `;
 }
 
-function openInMiniApp(adId, encodedUrl, receivedClicks) {
+function openAdPage(adId, encodedUrl, receivedClicks) {
     const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
 
     if (!telegram_id) {
@@ -64,6 +62,6 @@ function openInMiniApp(adId, encodedUrl, receivedClicks) {
 
     const finalUrl = `${baseUrl}?id=${adId}&url=${encodedUrl}&views=${receivedClicks}&telegram_id=${telegram_id}&tokens=${tokens}`;
 
-    // باز کردن صفحه در Mini App
-    window.Telegram.WebApp.openTelegramLink(finalUrl);
+    // به جای openTelegramLink، از window.open استفاده می‌کنیم
+    window.open(finalUrl, "_blank");
 }
