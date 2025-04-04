@@ -1,108 +1,59 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surf Ads</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-        }
-        .surfing-page {
-            padding: 20px;
-        }
-        .ad-section {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-        .claim-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .claim-btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <div id="ads-container" class="surfing-page">
-        <h2>Surf Ads</h2>
-        <p>Visit websites to earn tokens</p>
-        <!-- تبلیغات به‌طور داینامیک از جاوا اسکریپت بارگذاری خواهند شد -->
-    </div>
-
+    <title>Surf Ad</title>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let content = "<p>Loading ads...</p>";
+        const urlParams = new URLSearchParams(window.location.search);
+        const adId = urlParams.get('id');
+        const url = decodeURIComponent(urlParams.get('url') || '');
+        const views = urlParams.get('views');
+        const telegram_id = urlParams.get('telegram_id');
+        const tokens = urlParams.get('tokens');
 
-            // درخواست به سرور برای دریافت تبلیغات
-            fetch("https://coin-surf.sbs/0/get_ads.php")
+        if (!url || !adId || !telegram_id || !tokens) {
+            document.body.innerHTML = "<p>Invalid or missing parameters.</p>";
+        } else {
+            // باز کردن سایت تبلیغاتی در پنجره
+            const adWindow = window.open(url, '_blank');
+
+            // بعد از 15 ثانیه پنجره رو ببنده و امتیاز بده
+            setTimeout(() => {
+                if (adWindow && !adWindow.closed) {
+                    adWindow.close();
+                }
+
+                // ارسال به سرور برای دریافت توکن
+                fetch("https://coin-surf.sbs/0/complete_surfing.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        telegram_id: telegram_id,
+                        ad_id: adId,
+                        tokens: tokens
+                    })
+                })
                 .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        content = data.ads.map(ad => `
-                            <div class="ad-section">
-                                <p>Ad #${ad.id}: Visit ${ad.url} (+${parseFloat(ad.received_clicks).toFixed(5)} tokens)</p>
-                                <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-received_clicks="${ad.received_clicks}">Claim</button>
-                            </div>
-                        `).join("");
+                .then(result => {
+                    if (result.success) {
+                        alert("✅ Tokens added to your account!");
                     } else {
-                        content = `<p>Error: ${data.error}</p>`;
+                        alert("⚠️ Failed to update balance: " + (result.error || "Unknown error"));
                     }
-
-                    document.querySelector(".surfing-page").innerHTML = content;
-
-                    // اضافه کردن رویداد کلیک برای دکمه‌ها
-                    document.querySelectorAll('.claim-btn').forEach(button => {
-                        button.addEventListener('click', function () {
-                            const adId = this.getAttribute('data-id');
-                            const adUrl = this.getAttribute('data-url');
-                            const receivedClicks = this.getAttribute('data-received_clicks');
-                            openInMiniApp(adId, adUrl, receivedClicks);
-                        });
-                    });
+                    window.close(); // صفحه فعلی رو هم ببنده
                 })
                 .catch(error => {
-                    console.error("Error fetching ads:", error);
-                    document.querySelector(".surfing-page").innerHTML = "<p>Failed to load ads.</p>";
+                    console.error("Error sending completion:", error);
+                    alert("❌ Error updating tokens");
+                    window.close();
                 });
-        });
 
-        function openInMiniApp(adId, url, receivedClicks) {
-            // دریافت Telegram ID از Mini App
-            const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
-            
-            if (!telegram_id) {
-                alert("Failed to detect Telegram ID. Please restart the app in Telegram.");
-                return;
-            }
-
-            const tokens = receivedClicks;
-            const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
-            const params = new URLSearchParams({
-                id: adId,
-                url: encodeURIComponent(url),
-                views: receivedClicks,
-                telegram_id: telegram_id,
-                tokens: tokens
-            });
-
-            const finalUrl = `${baseUrl}?${params.toString()}`;
-
-            // ✅ لینک را داخل خود مینی اپ باز می‌کنیم
-            window.Telegram.WebApp.openLink(finalUrl);
+            }, 15000);
         }
     </script>
+</head>
+<body>
+    <h2>Surfing Ad...</h2>
+    <p>Please wait while your ad is loading...</p>
 </body>
 </html>
