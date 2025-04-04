@@ -73,18 +73,6 @@
   </div>
 
   <script>
-    if (window.Telegram?.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.BackButton.show();
-      Telegram.WebApp.BackButton.onClick(() => {
-        if (timeLeft > 0) {
-          alert("You must finish watching the ad first!");
-        } else {
-          Telegram.WebApp.close();
-        }
-      });
-    }
-
     const urlParams = new URLSearchParams(window.location.search);
     const adUrl = decodeURIComponent(urlParams.get('url'));
     const duration = Math.min(parseInt(urlParams.get('duration')) || 21, 60);
@@ -150,6 +138,21 @@
           <p style="color: #dc3545;">⚠️ Network error</p>
           <p>Please check your connection.</p>`;
       }
+    }
+
+    if (window.Telegram?.WebApp) {
+      Telegram.WebApp.ready();
+      Telegram.WebApp.BackButton.show();
+      Telegram.WebApp.BackButton.onClick(() => {
+        if (timeLeft > 0) {
+          const confirmLeave = confirm("اگر خارج شوید، توکن دریافت نمی‌کنید. مطمئنید؟");
+          if (confirmLeave) {
+            Telegram.WebApp.close();
+          }
+        } else {
+          Telegram.WebApp.close();
+        }
+      });
     }
 
     window.addEventListener('beforeunload', (e) => {
