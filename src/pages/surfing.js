@@ -25,7 +25,7 @@ export function render() {
                 button.addEventListener('click', function () {
                     const adId = this.getAttribute('data-id');
                     const adUrl = this.getAttribute('data-url');
-                    const receivedClicks = this.getAttribute('data-received-clicks');
+                    const receivedClicks = this.getAttribute('data-received_clicks');
                     openInMiniApp(adId, adUrl, receivedClicks);
                 });
             });
@@ -54,21 +54,28 @@ function openInMiniApp(adId, url, receivedClicks) {
 
     // توکن‌ها بر اساس received_clicks محاسبه می‌شود
     const tokens = receivedClicks;
-    const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
+    const baseUrl = "https://testc-6b6.pages.dev/surf-ad"; // دامنه باید تأیید شده باشد
     const params = new URLSearchParams({
         id: adId,
         url: encodeURIComponent(url),  // URL را انکود کرده و ارسال می‌کنیم
-        views: receivedClicks, // تغییر نام از views به receivedClicks
+        received_clicks: receivedClicks, // استفاده از نام دقیق‌تر
         telegram_id: telegram_id,
         tokens: tokens
     });
 
     const finalUrl = `${baseUrl}?${params.toString()}`;
 
-    // باز کردن لینک در مینی اپ تلگرام
+    // چک کردن پشتیبانی دامنه توسط تلگرام
     if (window.Telegram?.WebApp?.openTelegramLink) {
-        window.Telegram.WebApp.openTelegramLink(finalUrl);
+        try {
+            window.Telegram.WebApp.openTelegramLink(finalUrl);
+        } catch (error) {
+            console.error("Telegram link error:", error);
+            // اگر لینک پشتیبانی نشود، از روش افت‌بک (fallback) استفاده کنید
+            window.location.href = finalUrl;
+        }
     } else {
-        window.location.href = finalUrl;  // در صورتی که نمی‌توان از روش تلگرام استفاده کرد، از لینک مستقیم استفاده می‌شود
+        // اگر تلگرام در دسترس نیست، لینک مستقیم باز شود
+        window.location.href = finalUrl;
     }
 }
