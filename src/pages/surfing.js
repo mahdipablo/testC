@@ -1,16 +1,22 @@
 export function render() {
     let content = "<p>Loading ads...</p>";
 
+    // دریافت تبلیغات از سرور
     fetch("https://coin-surf.sbs/0/get_ads.php")
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 content = data.ads.map(ad => {
-                    const tokenAmount = parseFloat(ad.received_clicks * 0.00010).toFixed(5);
+                    const tokenAmount = (parseFloat(ad.received_clicks) * 0.00010).toFixed(5);
                     return `
                         <div class="ad-section">
                             <p>Ad #${ad.id}: Visit ${ad.url} (+${tokenAmount} tokens)</p>
-                            <button class="claim-btn" data-id="${ad.id}" data-url="${ad.url}" data-received-clicks="${ad.received_clicks}">Claim</button>
+                            <button class="claim-btn" 
+                                data-id="${ad.id}" 
+                                data-url="${encodeURIComponent(ad.url)}" 
+                                data-received-clicks="${ad.received_clicks}">
+                                Claim
+                            </button>
                         </div>
                     `;
                 }).join("");
@@ -20,12 +26,14 @@ export function render() {
 
             document.querySelector(".surfing-page").innerHTML = content;
 
+            // اضافه‌کردن رویداد کلیک
             document.querySelectorAll('.claim-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const adId = this.getAttribute('data-id');
-                    const adUrl = this.getAttribute('data-url');
+                    const encodedUrl = this.getAttribute('data-url');
                     const receivedClicks = this.getAttribute('data-received-clicks');
-                    openInMiniApp(adId, adUrl, receivedClicks);
+
+                    openInMiniApp(adId, encodedUrl, receivedClicks);
                 });
             });
         })
@@ -43,7 +51,7 @@ export function render() {
     `;
 }
 
-function openInMiniApp(adId, url, receivedClicks) {
+function openInMiniApp(adId, encodedUrl, receivedClicks) {
     const telegram_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id ?? null;
 
     if (!telegram_id) {
@@ -51,16 +59,11 @@ function openInMiniApp(adId, url, receivedClicks) {
         return;
     }
 
-    const tokens = parseFloat(receivedClicks * 0.00010).toFixed(5);
+    const tokens = (parseFloat(receivedClicks) * 0.00010).toFixed(5);
     const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
-    const params = new URLSearchParams({
-        id: adId,
-        url: encodeURIComponent(url),
-        views: receivedClicks,
-        telegram_id: telegram_id,
-        tokens: tokens
-    });
 
-    const finalUrl = `${baseUrl}?${params.toString()}`;
-    window.location.href = finalUrl;
+    const finalUrl = `${baseUrl}?id=${adId}&url=${encodedUrl}&views=${receivedClicks}&telegram_id=${telegram_id}&tokens=${tokens}`;
+
+    // باز کردن صفحه در Mini App
+    window.Telegram.WebApp.openTelegramLink(finalUrl);
 }
