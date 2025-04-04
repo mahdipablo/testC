@@ -20,21 +20,6 @@
       padding: 10px;
       text-align: center;
     }
-    .back-button {
-      background: #0077b6;
-      color: white;
-      padding: 8px 16px;
-      margin: 10px;
-      width: fit-content;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    .back-button:hover {
-      background: #005f87;
-    }
     .timer-container {
       background: #e9ecef;
       padding: 10px;
@@ -75,22 +60,16 @@
   <div class="header">
     <h2>Ad Surfing</h2>
   </div>
-
-  <!-- دکمه برگشت -->
-  <div class="back-button" onclick="handleBackClick()">🔙 بازگشت</div>
-
   <div class="timer-container">
-    زمان باقی‌مانده: <span id="timer">0</span> ثانیه
+    Time remaining: <span id="timer">0</span> sec
   </div>
-
   <div class="iframe-container">
-    <div class="loading">در حال بارگذاری تبلیغ...</div>
+    <div class="loading">Loading ad...</div>
     <iframe id="ad-iframe" src=""></iframe>
   </div>
-
   <div id="success-message" class="success-message">
-    <p>🎉 <span id="earned-tokens">0.00000</span> توکن به موجودی شما اضافه شد!</p>
-    <p>می‌توانید این صفحه را ببندید.</p>
+    <p>🎉 <span id="earned-tokens">0.00000</span> tokens added to your balance!</p>
+    <p>You can close this window now.</p>
   </div>
 
   <script>
@@ -151,45 +130,35 @@
         const data = await response.json();
         if (!data.success) {
           document.getElementById('success-message').innerHTML = `
-            <p style="color: #dc3545;">⚠️ خطا در بروزرسانی موجودی</p>
-            <p>لطفاً با پشتیبانی تماس بگیرید.</p>`;
+            <p style="color: #dc3545;">⚠️ Error updating balance</p>
+            <p>Please contact support.</p>`;
         }
       } catch (error) {
         document.getElementById('success-message').innerHTML = `
-          <p style="color: #dc3545;">⚠️ خطای شبکه</p>
-          <p>اتصال خود را بررسی کنید.</p>`;
-      }
-    }
-
-    function handleBackClick() {
-      if (timeLeft > 0) {
-        const confirmLeave = confirm("اگر خارج شوید، توکن دریافت نمی‌کنید. مطمئنید؟");
-        if (confirmLeave) {
-          if (window.Telegram?.WebApp?.close) {
-            Telegram.WebApp.close();
-          } else {
-            window.history.back();
-          }
-        }
-      } else {
-        if (window.Telegram?.WebApp?.close) {
-          Telegram.WebApp.close();
-        } else {
-          window.history.back();
-        }
+          <p style="color: #dc3545;">⚠️ Network error</p>
+          <p>Please check your connection.</p>`;
       }
     }
 
     if (window.Telegram?.WebApp) {
       Telegram.WebApp.ready();
       Telegram.WebApp.BackButton.show();
-      Telegram.WebApp.BackButton.onClick(handleBackClick);
+      Telegram.WebApp.BackButton.onClick(() => {
+        if (timeLeft > 0) {
+          const confirmLeave = confirm("اگر خارج شوید، توکن دریافت نمی‌کنید. مطمئنید؟");
+          if (confirmLeave) {
+            Telegram.WebApp.close();
+          }
+        } else {
+          Telegram.WebApp.close();
+        }
+      });
     }
 
     window.addEventListener('beforeunload', (e) => {
       if (timeLeft > 0) {
         e.preventDefault();
-        e.returnValue = 'آیا مطمئن هستید که می‌خواهید خارج شوید؟ ممکن است توکن دریافت نکنید.';
+        e.returnValue = 'Are you sure you want to leave? You may not receive tokens.';
         return e.returnValue;
       }
     });
