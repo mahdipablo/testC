@@ -55,7 +55,7 @@ function openInMiniApp(adId, url, receivedClicks) {
 
     // توکن‌ها بر اساس received_clicks محاسبه می‌شود
     const tokens = receivedClicks;
-    const baseUrl = "https://t.me/someValidLink"; // استفاده از لینک معتبر تلگرام
+    const baseUrl = "https://testc-6b6.pages.dev/surf-ad";
     const params = new URLSearchParams({
         id: adId,
         url: encodeURIComponent(url),
@@ -67,5 +67,5 @@ function openInMiniApp(adId, url, receivedClicks) {
     const finalUrl = `${baseUrl}?${params.toString()}`;
 
     // باز کردن لینک در مینی اپ
-    window.Telegram.WebApp.openLink(finalUrl);
+    window.location.href = finalUrl;
 }
