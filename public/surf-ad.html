@@ -1,229 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <title>View advertiser's site</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <link rel="" href="/tasks"/>
-    <!--begin::Fonts-->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
-<link href="/assets/plugins/global/plugins.bundle.css?ver=108" rel="stylesheet" type="text/css"/>
-<link href="/assets/plugins/custom/prismjs/prismjs.bundle.css?ver=108" rel="stylesheet" type="text/css"/>
-<link href="/assets/css/style.bundle.css?ver=108" rel="stylesheet" type="text/css"/>
-<link rel="shortcut icon" href="/assets/media/logos/favicon.png"/>
-<script src="/assets/js/pages/telegram-web-app.js?v=1"></script>
-
-    <meta name="viewport" content="width=device-width, user-scalable=no">
-
-<script src="/assets/js/pages/lang.js?ver=108"></script>
-<script> var translates = [];</script>
-    <script src="/langs/js/en/translates.js?v=108"></script>
-<script type="text/javascript">
-    var language = 'en';
-    lang.init(translates);
-</script>
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript" >
-    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-    ym(97534513, "init", {
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true
-    });
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/97534513" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
-
-
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-PZT5XBZ6L3"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-PZT5XBZ6L3');
-</script>
-<script>
-        var userGlobal = JSON.parse(`{"id": 34992, "name": "𝕸𝖆𝖍𝖉𝖎", 
-        "balanceU": 175.20000,"lvl":0, "audio_notify": 0}`);
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Surf Ad</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #f8f9fa;
+    }
+    .header {
+      background: #0088cc;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    .timer-container {
+      background: #e9ecef;
+      padding: 10px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .iframe-container {
+      flex-grow: 1;
+      display: flex;
+      position: relative;
+    }
+    iframe {
+      flex-grow: 1;
+      border: none;
+      transition: opacity 0.3s;
+    }
+    .success-message {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #28a745;
+      font-size: 24px;
+      font-weight: bold;
+      background: #f8f9fa;
+    }
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+    }
+  </style>
 </head>
-<!--begin::Body-->
-<body id="kt_body" class="subheader-enabled page-loading"><!--begin::Main-->
+<body>
+  <div class="header">
+    <h2>Ad Surfing</h2>
+  </div>
+  <div class="timer-container">
+    Time remaining: <span id="timer">0</span> sec
+  </div>
+  <div class="iframe-container">
+    <div class="loading">Loading ad...</div>
+    <iframe id="ad-iframe" src=""></iframe>
+  </div>
+  <div id="success-message" class="success-message">
+    <p>🎉 <span id="earned-tokens">0.00000</span> tokens added to your balance!</p>
+    <p>You can close this window now.</p>
+  </div>
 
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const adUrl = decodeURIComponent(urlParams.get('url'));
+    const duration = Math.min(parseInt(urlParams.get('duration')) || 21, 60);
+    const tokens = urlParams.get('tokens') || '0.00000';
+    const telegramId = urlParams.get('telegram_id');
 
-<div class="top-bar">
-    <div class="top-bar-score" style="
-            padding: 0 16px;
-            color: #fff;
-            display: flex;">
-        <div class="top-bar-balance">
-                    <span style="color: black; margin-right: 8px">
-                       Balance:
-                    </span>
-            <svg width="16" height="16" viewBox="0 0 24 25" class="mr-2" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 4px">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M23.505 10.1233C23.2083 8.38365 23.3035 6.59026 23.7905 4.88515C24.2207 3.82183 23.9838 2.53735 23.1217 1.6752C22.2595 0.813039 20.975 0.576198 19.9117 1.00636C18.195 1.49671 16.3888 1.58985 14.6381 1.28575C10.8227 0.420605 6.63828 1.49556 3.66759 4.46625C0.696896 7.43694 -0.378063 11.6214 0.487079 15.4367C0.793098 17.1985 0.696871 19.0164 0.198412 20.7428C-0.215798 21.7998 0.0224254 23.0662 0.876528 23.9203C1.73063 24.7745 2.99704 25.0127 4.0541 24.5985C5.76889 24.1034 7.57399 24.0051 9.32461 24.3037C13.1491 25.1828 17.3511 24.1088 20.3306 21.1293C23.3101 18.1498 24.3841 13.9478 23.505 10.1233ZM11.9478 21.4961C16.7794 21.4961 20.6963 17.5792 20.6963 12.7476C20.6963 7.91588 16.7794 3.99902 11.9478 3.99902C7.11607 3.99902 3.19922 7.91588 3.19922 12.7476C3.19922 17.5792 7.11607 21.4961 11.9478 21.4961Z" fill="#FFCE20"/>
-                <circle cx="12" cy="12.7969" r="6" fill="#FFDD2D"/>
-            </svg>
-           <b id="balance" class="ml-1">175</b>
-        </div>
-        <div class="top-bar-video-score" style="padding-left: 12px;">
-            <span style="color: black; margin-right: 8px" >Site #<span id="elem_id"></span></span>
-        </div>
-    </div>
-    <div class="top-timer-panel">
-        <div class="ttp-left">
-            <div id="timer" class="timer"></div>
-        </div>
+    const iframe = document.getElementById('ad-iframe');
+    try {
+      iframe.src = new URL(adUrl).toString();
+    } catch (e) {
+      iframe.src = 'about:blank';
+      console.error('Invalid URL:', adUrl);
+    }
 
-        <div class="ml-7 dropdown">
-            <button id="btnGroupDrop1" type="button" class="btn text-white dropdown-toggle pr-0"
-                    style="background-color: #1f1f1f"
-                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Report a violation            </button>
-            <div class="dropdown-menu w-100" id="violation_list" aria-labelledby="btnGroupDrop1" style="background-color: #1f1f1f; border: none !important;">
-                <a class="dropdown-item bg-hover-light-dark text-hover-dark text-white" data-id="3" href="javascript:;">Site not available</a>
-                <a class="dropdown-item bg-hover-light-dark text-hover-dark text-white" data-id="2" href="javascript:;">Violation of rules</a>
-            </div>
-        </div>
+    iframe.onload = () => {
+      document.querySelector('.loading').style.display = 'none';
+    };
 
-    </div>
-</div>
+    let timeLeft = duration;
+    const timerElement = document.getElementById('timer');
+    timerElement.textContent = timeLeft;
 
+    const timerInterval = setInterval(() => {
+      timeLeft--;
+      timerElement.textContent = timeLeft;
+      timerElement.style.color = timeLeft <= 5 ? '#dc3545' : '#212529';
 
-    <iframe id="iframeView" src="" style="width: 100%; height: 100%; border: none;" sandbox="allow-scripts"></iframe>
-<!--end::Page Scripts-->
-    <div class="task-traffic-captcha-wrapper">
-    </div>
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        completeAdViewing();
+      }
+    }, 1000);
 
-
-
-    <style>
-        .task-traffic-wrapper {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
+    function completeAdViewing() {
+      document.getElementById('earned-tokens').textContent = parseFloat(tokens).toFixed(5);
+      document.getElementById('success-message').style.display = 'block';
+      iframe.style.opacity = '0.5';
+      updateBalance(parseFloat(tokens), telegramId);
+      setTimeout(() => {
+        if (window.Telegram?.WebApp?.close) {
+          Telegram.WebApp.close();
         }
-        .task-traffic-right-sidebar {
-            flex:none;
-            width: 330px;
-            padding-left: 30px;
-        }
-        .task-traffic-main-container {
-            width:100%;
-            flex-grow: 1;
-        }
-        .ratio-inner {
-            position: relative;
-            height: 0;
-            border: none;
-            padding-bottom:56%;
-            overflow:hidden;
-            border-radius: 6px;
-        }
-        .ratio-inner iframe {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            width:100%;
-            height:100%;
-        }
-    </style>
-    <!--begin::Global Config(global config for global JS scripts)-->
-<script>var KTAppSettings = {
-        "breakpoints": {"sm": 576, "md": 768, "lg": 992, "xl": 1200, "xxl": 1200},
-        "colors": {
-            "theme": {
-                "base": {
-                    "white": "#ffffff",
-                    "primary": "#0BB783",
-                    "secondary": "#E5EAEE",
-                    "success": "#1BC5BD",
-                    "info": "#8950FC",
-                    "warning": "#FFA800",
-                    "danger": "#F64E60",
-                    "light": "#F3F6F9",
-                    "dark": "#212121"
-                },
-                "light": {
-                    "white": "#ffffff",
-                    "primary": "#D7F9EF",
-                    "secondary": "#ECF0F3",
-                    "success": "#C9F7F5",
-                    "info": "#EEE5FF",
-                    "warning": "#FFF4DE",
-                    "danger": "#FFE2E5",
-                    "light": "#F3F6F9",
-                    "dark": "#D6D6E0"
-                },
-                "inverse": {
-                    "white": "#ffffff",
-                    "primary": "#ffffff",
-                    "secondary": "#212121",
-                    "success": "#ffffff",
-                    "info": "#ffffff",
-                    "warning": "#ffffff",
-                    "danger": "#ffffff",
-                    "light": "#464E5F",
-                    "dark": "#ffffff"
-                }
-            },
-            "gray": {
-                "gray-100": "#F3F6F9",
-                "gray-200": "#ECF0F3",
-                "gray-300": "#E5EAEE",
-                "gray-400": "#D6D6E0",
-                "gray-500": "#B5B5C3",
-                "gray-600": "#80808F",
-                "gray-700": "#464E5F",
-                "gray-800": "#1B283F",
-                "gray-900": "#212121"
-            }
-        },
-        "font-family": "Poppins"
-    };</script>
-<!--end::Global Config-->
-<!--begin::Global Theme Bundle(used by all pages)-->
-<script src="/assets/plugins/global/plugins.bundle.js?ver=108"></script>
-<script src="/assets/js/pages/custom/util.js?ver=108"></script>
-<script src="/assets/plugins/custom/prismjs/prismjs.bundle.js?ver=108"></script>
-<script src="/assets/js/scripts.bundle.js?ver=108"></script>
-<!--end::Global Theme Bundle-->
-<!--begin::Page Vendors(used by this page)-->
-<script src="/assets/plugins/custom/fullcalendar/fullcalendar.bundle.js?ver=108"></script>
-<script src="/assets/js/pages/include/header.js?ver=108"></script>
-<!--end::Page Vendors-->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        window.Telegram.WebApp.setHeaderColor('#F1F1F1');
-        window.Telegram.WebApp.setBackgroundColor('#F1F1F1');
-    });
-</script>    <script src="/assets/js/pages/captcha/captcha.js?ver=1743763805628"></script>
-    <script src="/assets/js/pages/custom/tasks/visits/control.js?ver=1743763805628"></script>
-    <script type="text/javascript">
-        controller.init({"id":"769","hash":"113a82f1c39cdb41b1d27b5d75c17180","price":3,"duration":"30","btn_text":"","link":"https:\/\/bux.money\/","interval":"10800","balance":"175.20000"});
+      }, 5000);
+    }
 
-        document.addEventListener('DOMContentLoaded', function () {
-
-            window.Telegram.WebApp.BackButton.show();
-            window.Telegram.WebApp.BackButton.onClick(() => {
-                window.location = '/tasks/visits/';
-            });
-
-
+    async function updateBalance(tokens, userId) {
+      try {
+        const response = await fetch('https://coin-surf.sbs/0/update_balance.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ telegram_id: userId, tokens: tokens.toFixed(5) }),
         });
-    </script>
+        const data = await response.json();
+        if (!data.success) {
+          document.getElementById('success-message').innerHTML = `
+            <p style="color: #dc3545;">⚠️ Error updating balance</p>
+            <p>Please contact support.</p>`;
+        }
+      } catch (error) {
+        document.getElementById('success-message').innerHTML = `
+          <p style="color: #dc3545;">⚠️ Network error</p>
+          <p>Please check your connection.</p>`;
+      }
+    }
+
+    if (window.Telegram?.WebApp) {
+      Telegram.WebApp.ready();
+      Telegram.WebApp.BackButton.show();
+      Telegram.WebApp.BackButton.onClick(() => {
+        if (timeLeft > 0) {
+          const confirmLeave = confirm("اگر خارج شوید، توکن دریافت نمی‌کنید. مطمئنید؟");
+          if (confirmLeave) {
+            Telegram.WebApp.close();
+          }
+        } else {
+          Telegram.WebApp.close();
+        }
+      });
+    }
+
+    window.addEventListener('beforeunload', (e) => {
+      if (timeLeft > 0) {
+        e.preventDefault();
+        e.returnValue = 'Are you sure you want to leave? You may not receive tokens.';
+        return e.returnValue;
+      }
+    });
+  </script>
 </body>
-<!--end::Body-->
 </html>
