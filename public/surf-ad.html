@@ -1,167 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Surf Ad</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background: #f8f9fa;
-    }
-    .header {
-      background: #0088cc;
-      color: white;
-      padding: 10px;
-      text-align: center;
-    }
-    .timer-container {
-      background: #e9ecef;
-      padding: 10px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-      border-bottom: 1px solid #dee2e6;
-    }
-    .iframe-container {
-      flex-grow: 1;
-      display: flex;
-      position: relative;
-    }
-    iframe {
-      flex-grow: 1;
-      border: none;
-      transition: opacity 0.3s;
-    }
-    .success-message {
-      display: none;
-      text-align: center;
-      padding: 20px;
-      color: #28a745;
-      font-size: 24px;
-      font-weight: bold;
-      background: #f8f9fa;
-    }
-    .loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 18px;
-    }
-  </style>
+    <meta charset="utf-8"/>
+    <title>Telegram WebApp Example</title>
+    <script src="https://web.telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-  <div class="header">
-    <h2>Ad Surfing</h2>
-  </div>
-  <div class="timer-container">
-    Time remaining: <span id="timer">0</span> sec
-  </div>
-  <div class="iframe-container">
-    <div class="loading">Loading ad...</div>
-    <iframe id="ad-iframe" src=""></iframe>
-  </div>
-  <div id="success-message" class="success-message">
-    <p>🎉 <span id="earned-tokens">0.00000</span> tokens added to your balance!</p>
-    <p>You can close this window now.</p>
-  </div>
+    <button id="openPageBtn" class="btn">Open New Page</button>
 
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const adUrl = decodeURIComponent(urlParams.get('url'));
-    const duration = Math.min(parseInt(urlParams.get('duration')) || 21, 60);
-    const tokens = urlParams.get('tokens') || '0.00000';
-    const telegramId = urlParams.get('telegram_id');
+    <script type="text/javascript">
+        // این تابع برای باز کردن یک صفحه جدید و فعال کردن دکمه برگشت است
+        document.getElementById("openPageBtn").addEventListener("click", function() {
+            // باز کردن صفحه جدید
+            window.open("https://example.com", "_blank");
 
-    const iframe = document.getElementById('ad-iframe');
-    try {
-      iframe.src = new URL(adUrl).toString();
-    } catch (e) {
-      iframe.src = 'about:blank';
-      console.error('Invalid URL:', adUrl);
-    }
+            // فعال کردن دکمه برگشت تلگرام
+            window.Telegram.WebApp.BackButton.show();
 
-    iframe.onload = () => {
-      document.querySelector('.loading').style.display = 'none';
-    };
-
-    let timeLeft = duration;
-    const timerElement = document.getElementById('timer');
-    timerElement.textContent = timeLeft;
-
-    const timerInterval = setInterval(() => {
-      timeLeft--;
-      timerElement.textContent = timeLeft;
-      timerElement.style.color = timeLeft <= 5 ? '#dc3545' : '#212529';
-
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        completeAdViewing();
-      }
-    }, 1000);
-
-    function completeAdViewing() {
-      document.getElementById('earned-tokens').textContent = parseFloat(tokens).toFixed(5);
-      document.getElementById('success-message').style.display = 'block';
-      iframe.style.opacity = '0.5';
-      updateBalance(parseFloat(tokens), telegramId);
-      setTimeout(() => {
-        if (window.Telegram?.WebApp?.close) {
-          Telegram.WebApp.close();
-        }
-      }, 5000);
-    }
-
-    async function updateBalance(tokens, userId) {
-      try {
-        const response = await fetch('https://coin-surf.sbs/0/update_balance.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ telegram_id: userId, tokens: tokens.toFixed(5) }),
+            // افزودن رویداد برای برگشت به صفحه قبلی
+            window.Telegram.WebApp.BackButton.onClick(() => {
+                window.Telegram.WebApp.close(); // می‌بندد اپلیکیشن وب تلگرام
+            });
         });
-        const data = await response.json();
-        if (!data.success) {
-          document.getElementById('success-message').innerHTML = `
-            <p style="color: #dc3545;">⚠️ Error updating balance</p>
-            <p>Please contact support.</p>`;
-        }
-      } catch (error) {
-        document.getElementById('success-message').innerHTML = `
-          <p style="color: #dc3545;">⚠️ Network error</p>
-          <p>Please check your connection.</p>`;
-      }
-    }
 
-    if (window.Telegram?.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.BackButton.show();
-      Telegram.WebApp.BackButton.onClick(() => {
-        if (timeLeft > 0) {
-          const confirmLeave = confirm("اگر خارج شوید، توکن دریافت نمی‌کنید. مطمئنید؟");
-          if (confirmLeave) {
-            Telegram.WebApp.close();
-          }
-        } else {
-          Telegram.WebApp.close();
-        }
-      });
-    }
-
-    window.addEventListener('beforeunload', (e) => {
-      if (timeLeft > 0) {
-        e.preventDefault();
-        e.returnValue = 'Are you sure you want to leave? You may not receive tokens.';
-        return e.returnValue;
-      }
-    });
-  </script>
+        // این رویداد برای پنهان کردن دکمه برگشت در ابتدا است
+        document.addEventListener('DOMContentLoaded', function () {
+            window.Telegram.WebApp.BackButton.hide();
+        });
+    </script>
 </body>
 </html>
