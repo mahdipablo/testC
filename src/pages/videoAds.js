@@ -11,6 +11,6 @@ export function render() {
 export function afterRender() {
   document.getElementById("openLinkBtn").addEventListener("click", () => {
     // لینک صفحه ساده‌ای که می‌خوای باز شه
-    window.open("https://example.com/simple-page", "_blank");
+    window.open("https://testc-6b6.pages.dev/surf-ad", "_blank");
   });
 }
