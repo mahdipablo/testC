@@ -1,13 +1,6 @@
 // src/pages/videoAds.js
 export function render() {
-
-
-<script src="//static.surfe.pro/js/net.js"></script>
-<ins class="surfe-be" data-sid="411019"></ins>
-<script>(adsurfebe = window.adsurfebe || []).push({});</script>
-
-    
-    return `
+return `
       <div class="video-ads-page">
         <h2>Video Ads</h2>
         <p>Watch ads to earn rewards.</p>
