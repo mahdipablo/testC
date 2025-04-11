@@ -6,7 +6,7 @@ export function render() {
         <p>Watch ads to earn rewards.</p>
         <!-- اضافه کردن کد تبلیغات بنری Surfe -->
         <script src="//static.surfe.pro/js/net.js"></script>
-        <ins class="surfe-be" data-sid="410891"></ins>
+        <ins class="surfe-be" data-sid="411019"></ins>
         <script>(adsurfebe = window.adsurfebe || []).push({});</script>
         <button class="action-btn">Watch Ad (+5 TON)</button>
       </div>
